@@ -10,7 +10,7 @@
 
 1. clone โปรเจค psuapp-announcement
 ```bash
-git clone { URL Project }
+git clone https://github.com/MeeMeChu/exam-printing-9.git
 ```
 2. cd เข้าไปยังไฟล์ที่ clone มา
 ```bash
