@@ -1,10 +1,12 @@
+import { Fragment } from 'react/jsx-runtime'
+import Routes from './routes'
 import './App.css'
 
 function App() {
   return (
-    <>
-      <h1>React + TypeScript + MUI</h1>
-    </>
+    <Fragment>
+      <Routes />
+    </Fragment>
   )
 }
 
