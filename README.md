@@ -14,7 +14,7 @@ git clone https://github.com/MeeMeChu/exam-printing-9.git
 ```
 2. cd เข้าไปยังไฟล์ที่ clone มา
 ```bash
-cd exam-printing-9
+cd exam-printing-frontend
 ```
 3. ติดตั้ง package ด้วย คำสั่ง 
 ```bash
