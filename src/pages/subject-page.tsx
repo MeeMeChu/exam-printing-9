@@ -1,54 +1,105 @@
 import { FC } from "react"
 import Container from '@mui/material/Container';
-import { Box,Typography } from "@mui/material";
+import { Box,Typography , IconButton } from "@mui/material";
 import Grid from '@mui/material/Grid2';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
-const columns: GridColDef<(typeof rows)[number]>[] = [
+const columns: GridColDef[] = [
     { 
-        field: 'วิชา', 
-        headerName: 'Subject', 
-        width: 90 
+        field: 'subjectName', 
+        headerName: 'ชื่อวิชา', 
+        type:'string',
+        width: 200,
+        headerAlign: 'center',
+        align: 'center'
     },
     {
-        field: '',
-        headerName: 'First name',
+        field: 'subjectId',
+        headerName: 'รหัสวิชา',
+        type:'string',
+        width: 200,
+        headerAlign: 'center',
+        align: 'center'
+    },
+    {
+        field: 'dateAddSubject',
+        headerName: 'วันที่เพิ่มข้อสอบ',
+        width: 150,
+        headerAlign: 'center',
+        align: 'center'
+    },
+    {
+        field: 'dateEditSubject',
+        headerName: 'วันที่แก้ไขข้อสอบ',
         width: 150,
         editable: true,
+        headerAlign: 'center',
+        align: 'center'
     },
     {
-        field: 'lastName',
-        headerName: 'Last name',
-        width: 150,
-        editable: true,
-    },
-    {
-        field: 'age',
-        headerName: 'Age',
-        type: 'number',
-        width: 110,
-        editable: true,
-    },
-    {
-        field: 'fullName',
-        headerName: 'Full name',
-        description: 'This column has a value getter and is not sortable.',
+        field: 'status',
+        headerName: 'สถานะข้อสอบ',
         sortable: false,
-        width: 160,
-        valueGetter: (value, row) => `${row.firstName || ''} ${row.lastName || ''}`,
+        width: 200,
+        headerAlign: 'center',
+        align: 'center',
+        renderCell: (params) => {
+            let color = '';
+            if (params.value === 'ยังไม่ส่งข้อสอบ') {
+                color = 'red';
+            } else if (params.value === 'จัดส่งเสร็จแล้ว') {
+                color = '#D5A600';
+            } else if (params.value === 'จัดพิมพ์เสร็จสิ้น') {
+                color = 'green';
+            }
+            return (
+                <Typography sx={{ color ,
+                    textAlign: 'center',
+                    my: 1.5,
+                }}>
+                    {params.value}
+                </Typography>
+            );
+        }
+    },
+    {
+        field: 'action',
+        headerName: 'Action',
+        sortable: false,
+        type:'actions',
+        width: 200,
+        headerAlign: 'center',
+        align: 'center',
+        renderCell: (params) => {
+            return (
+                <>
+                    <IconButton
+                        color="primary"
+                        onClick={() => { alert(`Edit ${params.row.subjectName}`); }}
+                    >
+                        <EditIcon />
+                    </IconButton>
+                    <IconButton
+                        color="error"
+                        onClick={() => { alert(`Delete ${params.row.subjectName}`); }}
+                    >
+                        <DeleteIcon />
+                    </IconButton>
+                </>
+            );
+        }
     },
 ];
 
 const rows = [
-    { id: 1, lastName: 'Snow', firstName: 'Jon', age: 14 },
-    { id: 2, lastName: 'Lannister', firstName: 'Cersei', age: 31 },
-    { id: 3, lastName: 'Lannister', firstName: 'Jaime', age: 31 },
-    { id: 4, lastName: 'Stark', firstName: 'Arya', age: 11 },
-    { id: 5, lastName: 'Targaryen', firstName: 'Daenerys', age: null },
-    { id: 6, lastName: 'Melisandre', firstName: null, age: 150 },
-    { id: 7, lastName: 'Clifford', firstName: 'Ferrara', age: 44 },
-    { id: 8, lastName: 'Frances', firstName: 'Rossini', age: 36 },
-    { id: 9, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
+    { id: 1, subjectName: 'Internet of thing', subjectId: '344-323', dateAddSubject: '12/10/2567' , dateEditSubject: '12/12/2567' , status: 'จัดพิมพ์เสร็จสิ้น'},
+    { id: 2, subjectName: 'DataComputing', subjectId: '344-323', dateAddSubject: '12/10/2567' , dateEditSubject: '12/12/2567' , status: 'จัดส่งเสร็จแล้ว'},
+    { id: 3, subjectName: 'SoftwareEnginearing', subjectId: '344-341', dateAddSubject: '12/10/2567' , dateEditSubject: '12/12/2567' , status: 'จัดพิมพ์เสร็จสิ้น'},
+    { id: 4, subjectName: 'Snow', subjectId: '334-201', dateAddSubject: '12/10/2567' , dateEditSubject: '12/12/2567' , status: 'ยังไม่ส่งข้อสอบ'},
+    { id: 5, subjectName: 'Snow', subjectId: '334-201', dateAddSubject: '12/10/2567' , dateEditSubject: '12/12/2567' , status: 'จัดพิมพ์เสร็จสิ้น'},
+    { id: 6, subjectName: 'Snow', subjectId: '334-201', dateAddSubject: '12/10/2567' , dateEditSubject: '12/12/2567' , status: 'จัดพิมพ์เสร็จสิ้น'},
 ];
 
 const SubjectPage : FC = () => {
@@ -61,7 +112,7 @@ const SubjectPage : FC = () => {
                     </Box>
                     <Box sx={{ backgroundColor: '#FFFFFF' , marginTop: 2}}>
                         <DataGrid
-                            sx={{boxShadow: 2, border: 1,}}
+                            sx={{boxShadow: 2, border: 1}}
                             rows={rows}
                             columns={columns}
                             initialState={{
