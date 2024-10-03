@@ -5,6 +5,7 @@ import Grid from '@mui/material/Grid2';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Button from '@mui/material/Button';
 
 const columns: GridColDef[] = [
     { 
@@ -73,6 +74,9 @@ const columns: GridColDef[] = [
         headerAlign: 'center',
         align: 'center',
         renderCell: (params) => {
+            if (params.row.status === 'ยังไม่ส่งข้อสอบ' || params.row.status === 'จัดพิมพ์เสร็จสิ้น'){
+                return null;
+            }
             return (
                 <>
                     <IconButton
@@ -83,7 +87,7 @@ const columns: GridColDef[] = [
                     </IconButton>
                     <IconButton
                         color="error"
-                        onClick={() => { alert(`Delete ${params.row.subjectName}`); }}
+                        onClick={() => { alert(`Do you want to delete ${params.row.subjectName} ?`); }}
                     >
                         <DeleteIcon />
                     </IconButton>
@@ -97,30 +101,31 @@ const rows = [
     { id: 1, subjectName: 'Internet of thing', subjectId: '344-323', dateAddSubject: '12/10/2567' , dateEditSubject: '12/12/2567' , status: 'จัดพิมพ์เสร็จสิ้น'},
     { id: 2, subjectName: 'DataComputing', subjectId: '344-323', dateAddSubject: '12/10/2567' , dateEditSubject: '12/12/2567' , status: 'จัดส่งเสร็จแล้ว'},
     { id: 3, subjectName: 'SoftwareEnginearing', subjectId: '344-341', dateAddSubject: '12/10/2567' , dateEditSubject: '12/12/2567' , status: 'จัดพิมพ์เสร็จสิ้น'},
-    { id: 4, subjectName: 'Snow', subjectId: '334-201', dateAddSubject: '12/10/2567' , dateEditSubject: '12/12/2567' , status: 'ยังไม่ส่งข้อสอบ'},
-    { id: 5, subjectName: 'Snow', subjectId: '334-201', dateAddSubject: '12/10/2567' , dateEditSubject: '12/12/2567' , status: 'จัดพิมพ์เสร็จสิ้น'},
-    { id: 6, subjectName: 'Snow', subjectId: '334-201', dateAddSubject: '12/10/2567' , dateEditSubject: '12/12/2567' , status: 'จัดพิมพ์เสร็จสิ้น'},
+    { id: 4, subjectName: 'IDEA TO ENTREPRENEURSHIP', subjectId: '460-001 ', dateAddSubject: '12/10/2567' , dateEditSubject: '12/12/2567' , status: 'ยังไม่ส่งข้อสอบ'},
+    { id: 5, subjectName: 'PRINCIPLES OF AI', subjectId: '344-361', dateAddSubject: '12/10/2567' , dateEditSubject: '12/12/2567' , status: 'จัดส่งเสร็จแล้ว'},
+    { id: 6, subjectName: 'Info', subjectId: '344-211', dateAddSubject: '12/10/2567' , dateEditSubject: '12/12/2567' , status: 'จัดพิมพ์เสร็จสิ้น'},
 ];
 
-const SubjectPage : FC = () => {
+const ExamPage : FC = () => {
     return (
         <Container maxWidth="lg">
             <Grid>
                 <Grid size={{ xs: 12 , sm: 6 , md: 4 , lg: 3}}>
-                    <Box sx={{ backgroundColor : '#fff' }}>
+                    <Box sx={{ backgroundColor : '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Typography variant="h5">ตารางรายวิชาสอบ</Typography>
+                        <Button variant="contained" color="primary" sx={{ fontSize: 16 }}>+ เพิ่มไฟล์ข้อสอบ</Button>
                     </Box>
                     <Box sx={{ backgroundColor: '#FFFFFF' , marginTop: 2}}>
                         <DataGrid
-                            sx={{boxShadow: 2, border: 1}}
+                            sx={{boxShadow: 2}}
                             rows={rows}
                             columns={columns}
                             initialState={{
-                            pagination: {
-                                paginationModel: {
-                                pageSize: 5,
+                                pagination: {
+                                    paginationModel: {
+                                    pageSize: 5,
+                                    },
                                 },
-                            },
                             }}
                             pageSizeOptions={[5]}
                         />
@@ -131,4 +136,4 @@ const SubjectPage : FC = () => {
     );
 }
 
-export default SubjectPage
+export default ExamPage
