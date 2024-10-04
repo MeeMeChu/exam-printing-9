@@ -4,6 +4,7 @@ import { DataGrid, GridRowsProp, GridColDef, GridActionsCellItem } from '@mui/x-
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Button from '@mui/material/Button';
+import { useNavigate } from 'react-router-dom';
 
 
 const rows: GridRowsProp = [
@@ -21,7 +22,7 @@ const columns: GridColDef[] = [
     { 
         field: 'col1', 
         headerName: 'รหัสวิชา', 
-        width: 80 
+        width: 90 
     },
     {   field: 'col2', 
         headerName: 'ชื่อวิชา', 
@@ -81,7 +82,7 @@ const columns: GridColDef[] = [
         headerName: 'Action',
         sortable: false,
         type:'actions',
-        width: 200,
+        width: 100,
         headerAlign: 'center',
         align: 'center',
         renderCell: (params) => {
@@ -109,19 +110,26 @@ const columns: GridColDef[] = [
 ];
 
 const SubjectPage : FC = () => {
+    const navigate = useNavigate();
+
     return (
-        <Container >
+        <Container sx={{mt:15}}>
             <Box sx={{
                 display: 'flex',
                 justifyContent:'space-between'
             }}>
                 <Typography variant="h5">Subject Management</Typography>
 
-                <Button variant="contained" size="large" sx={{ 
-                    p: 1,
-                    width:100,
-                }}
-                    >New</Button>
+                <Button variant="contained" 
+                    size="large" 
+                    sx={{ 
+                        p: 1,
+                        width:100,
+                    
+                    }}
+                    onClick={()=> navigate('create')}
+
+                    >+ เพิ่มรายวิชา</Button>
             </Box>
             <Box
                 sx={{

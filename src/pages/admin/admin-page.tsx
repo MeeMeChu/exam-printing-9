@@ -4,6 +4,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { DataGrid, GridRowsProp, GridColDef, GridActionsCellItem } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useNavigate } from 'react-router-dom';
 
 const initialRows : GridRowsProp = [
     { id: 1, username: 'MeeMeChu', firstname: 'Thanakrit', lastname: "Yodmunee", email: "6510210114@email.psu.ac.th", role: "test" },
@@ -101,15 +102,17 @@ const AdminPage : FC = () => {
 
         setFilteredData(filtered);
     };
+    const navigate = useNavigate();
 
     return (
-        <Container maxWidth="lg" >
+        
+        <Container maxWidth="lg" sx={{mt:15}}>
             <Box sx={{ my : 1.5 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                     <Typography variant='h5'>User Management</Typography>
-                    <Button variant="contained">Add new User</Button>
+                    <Button variant="contained" onClick={()=> navigate('create')}>+ เพิ่มผู้ใช้</Button>
                 </Box>
-                <Paper elevation={5} sx={{ mt : 2, p: 2 }}>
+                <Paper sx={{ mt : 2, p: 2, boxShadow: '0px 8px 24px rgba(149, 157, 165, 0.2)' }}>
                     <TextField 
                         variant="outlined" 
                         placeholder='Search...'
@@ -122,7 +125,7 @@ const AdminPage : FC = () => {
                             } 
                         }}
                     />
-                    <Box sx={{width : '100%', mt: 2}}>
+                    <Box sx={{width : '100%', mt: 2,p: 5}}>
                         <DataGrid 
                             pagination
                             rows={filteredData} 

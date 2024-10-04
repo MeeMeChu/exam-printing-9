@@ -7,7 +7,7 @@ import Grid from '@mui/material/Grid2';
 
 const CreateSubjectPage : FC = () => {
     return (
-        <Container>
+        <Container sx={{mt:15}}>
           <Box sx={{ my: 1 ,mt:8}}>
             <Typography variant="h5" fontWeight='bold'>Create subject</Typography>
           </Box>
@@ -43,7 +43,7 @@ const CreateSubjectPage : FC = () => {
                 {/* บรรทัดที่3 */}
                 <Grid size={2}>
                   <Typography variant="h5" sx={{fontSize:16, px:1}}>ตอน</Typography>
-                  <TextField required id="outlined-required"placeholder="Enter section number" fullWidth size="small"/>
+                  <TextField required id="outlined-required"placeholder="0" fullWidth size="small"/>
                 </Grid>
                 <Grid size={2}>
                   <Typography variant="h5" sx={{fontSize:16, px:1}}>เทอม</Typography>

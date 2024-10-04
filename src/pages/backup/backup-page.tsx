@@ -1,6 +1,7 @@
 import { FC } from "react"
-import { Box, Container } from '@mui/material';
+import { Box, Container,Button ,Typography} from '@mui/material';
 import { DataGrid, GridRowsProp, GridColDef } from '@mui/x-data-grid';
+import { useNavigate } from 'react-router-dom';
 
 
 const rows: GridRowsProp = [
@@ -34,9 +35,21 @@ const columns: GridColDef[] = [
 ];
 
 const BackupPage : FC = () => {
+    const navigate = useNavigate();
+
     return (
-        <Container >
-            
+        <Container sx={{mt:15}}>
+            <Box sx={{display: 'flex',justifyContent:'space-between'}}>                
+                <Typography variant="h5" fontWeight='bold'>Exam Management</Typography>
+                <Button
+                    variant="contained" 
+                    color="primary" 
+                    sx={{ fontSize: 16 }} 
+                    onClick={()=> navigate('create')}
+                >
+                    + เพิ่มไฟล์ข้อสอบ
+                </Button>
+            </Box>
             <Box
                 sx={{
                     p: 5,

@@ -1,7 +1,7 @@
 import { Outlet, useRoutes } from 'react-router-dom'
 import NotFoundPage from '../pages/not-found-page';
 import SubjectPage from '../pages/subject/subject-page';
-import AdminPage from '../pages/admin-page';
+import AdminPage from '../pages/admin/admin-page';
 import CreateSubjectPage from '../pages/subject/create-subject-page';
 import EditSubjectPage from '../pages/subject/edit-subject-page';
 import CreateBackupPage from '../pages/backup/create-backup-page';
@@ -11,7 +11,8 @@ import ExamPage from '../pages/exam/exam-page';
 import CraeteExamPage from '../pages/exam/create-exam-page';
 import EditExamPage from '../pages/exam/edit-exam.page';
 import LoginPage from '../pages/login-page';
-
+import CreateAdminPage from '../pages/admin/create-admin-page';
+import PrintingPage from '../pages/printing/printing-page';
 const Routes : React.FC = () => {
     const element = useRoutes([
         { path: '/', element: <LoginPage />},
@@ -23,6 +24,10 @@ const Routes : React.FC = () => {
                 {
                     path: '',
                     element: <AdminPage/>
+                },
+                {
+                    path: 'create',
+                    element: <CreateAdminPage/>
                 },
             ]
         },
@@ -82,6 +87,16 @@ const Routes : React.FC = () => {
                 {
                     path: '',
                     element: <ProfilePage/>
+                },
+            ]
+        },
+        {
+            path:'printing' ,
+            element: <Outlet/>,
+            children: [
+                {
+                    path: '',
+                    element: <PrintingPage />
                 },
             ]
         },

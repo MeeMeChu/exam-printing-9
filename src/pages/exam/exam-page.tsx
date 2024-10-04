@@ -6,6 +6,9 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Button from '@mui/material/Button';
+import { useNavigate } from 'react-router-dom';
+
+
 
 const columns: GridColDef[] = [
     { 
@@ -73,7 +76,7 @@ const columns: GridColDef[] = [
         headerName: 'Action',
         sortable: false,
         type:'actions',
-        width: 200,
+        width: 150,
         headerAlign: 'center',
         align: 'center',
         renderCell: (params) => {
@@ -110,12 +113,21 @@ const rows = [
 ];
 
 const ExamPage : FC = () => {
+    const navigate = useNavigate();
+
     return (
-        <Container >
+        <Container sx={{mt:15}}>
             
             <Box sx={{display: 'flex',justifyContent:'space-between'}}>                
                 <Typography variant="h5" fontWeight='bold'>Exam Management</Typography>
-                <Button variant="contained" color="primary" sx={{ fontSize: 16 }}>+ เพิ่มไฟล์ข้อสอบ</Button>
+                <Button
+                    variant="contained" 
+                    color="primary" 
+                    sx={{ fontSize: 16 }} 
+                    onClick={()=> navigate('create')}
+                >
+                    + เพิ่มไฟล์ข้อสอบ
+                </Button>
             </Box>
                 <Box sx={{p: 5, boxShadow: '0px 8px 24px rgba(149, 157, 165, 0.2)'}}>
                         <DataGrid
@@ -129,9 +141,10 @@ const ExamPage : FC = () => {
                                     },
                                 },
                             }}
+                            
                             pageSizeOptions={[5]}
                         />
-                    </Box>
+                </Box>
             
         </Container>
     );

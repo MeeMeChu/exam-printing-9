@@ -2,6 +2,7 @@ import { FC  } from "react"
 import { Box, Container, Typography ,TextField ,Button,styled} from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { useNavigate } from 'react-router-dom';
 
 
 const CreateBackupPage : FC = () => {
@@ -16,8 +17,10 @@ const CreateBackupPage : FC = () => {
                 whiteSpace: 'nowrap',
                 width: 1,
               });
+        const navigate = useNavigate();
+
     return (
-        <Container>
+        <Container sx={{mt:15}}>
              <Box sx={{ my: 1, mt: 8 }}>
                 <Typography variant="h5" fontWeight='bold'>Backup</Typography>
             </Box>
@@ -27,7 +30,7 @@ const CreateBackupPage : FC = () => {
                 }}>
                 
             
-        <Grid container spacing={3}>
+        <Grid container spacing={2.3}>
                 {/* บรรทัดที่1 */}
                 <Grid size={6}>
                         <Typography variant="h5" sx={{ fontSize: 16, px: 1 }}>รหัสวิชา</Typography>
@@ -109,7 +112,7 @@ const CreateBackupPage : FC = () => {
                 </Grid>
                 
             </Grid>
-            <Grid container spacing={3} sx={{mt:3}}>
+            <Grid container spacing={0.5} sx={{mt:1}}>
                  {/* บรรทัดที่5 */}
                  <Grid size={12}>
                         <Typography variant="h5" sx={{ fontSize: 16, px: 1 }}>รายละเอียดจ่าหน้าซอง</Typography>
@@ -165,7 +168,7 @@ const CreateBackupPage : FC = () => {
             <Grid container spacing={3} sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', my: 6 }}>
                     {/* ปุ่มกด1 */}
                     <Grid size={2}>
-                        <Button variant="contained" fullWidth color="error">ยกเลิก</Button>
+                        <Button variant="contained" fullWidth color="error" onClick={()=> navigate('/backup')}>ยกเลิก</Button>
                     </Grid>
                     
                 </Grid>

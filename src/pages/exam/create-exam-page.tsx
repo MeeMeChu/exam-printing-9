@@ -1,11 +1,9 @@
 import { FC } from "react"
 import { Box, Container, styled, Typography } from '@mui/material';
 import TextField from '@mui/material/TextField';
-import MenuItem from '@mui/material/MenuItem';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid2';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { Input } from '@mui/material';
 
 const CraeteExamPage : FC = () => {
 
@@ -22,7 +20,7 @@ const CraeteExamPage : FC = () => {
       });
 
     return (
-        <Container>
+        <Container sx={{mt:15}}>
           <Box 
             sx={{ my: 1 ,mt:8}}
           >
@@ -64,7 +62,7 @@ const CraeteExamPage : FC = () => {
                 </Grid>
                 {/* บรรทัดที่3 */}
                 <Grid size={12}>
-                  <Typography variant="h5" sx={{fontSize:16, px:1}}>อัพโหลดไฟลล์ข้อสอบ</Typography>
+                  <Typography variant="h5" sx={{fontSize:16, px:1,mb:2}}>อัพโหลดไฟลล์ข้อสอบ</Typography>
                   <Button
                     component="label"
                     role={undefined}
