@@ -8,9 +8,7 @@ import Grid from '@mui/material/Grid2';
 const CreateSubjectPage : FC = () => {
     return (
         <Container>
-          <Box 
-            sx={{ my: 1 ,mt:8}}
-          >
+          <Box sx={{ my: 1 ,mt:8}}>
             <Typography variant="h5" fontWeight='bold'>Create subject</Typography>
           </Box>
           <Box
@@ -23,29 +21,29 @@ const CreateSubjectPage : FC = () => {
                 {/* บรรทัดที่1 */}
                 <Grid size={2}>
                   <Typography variant="h5" sx={{fontSize:16 , px:1}}>รหัสวิชา</Typography>
-                  <TextField required id="outlined-required"placeholder="Enter subject Name"  fullWidth />
+                  <TextField required id="outlined-required"placeholder="000-000"  fullWidth size="small"/>
                 </Grid>
                 <Grid size={5}>
                   <Typography variant="h5" sx={{fontSize:16, px:1}}>ชื่อวิชา</Typography>
-                  <TextField required id="outlined-required"placeholder="Enter subject Name" fullWidth/>
+                  <TextField required id="outlined-required"placeholder="Enter subject Name" fullWidth size="small"/>
                 </Grid>
                 <Grid size={5}>
                   <Typography variant="h5" sx={{fontSize:16, px:1}}>ชื่ออาจารย์</Typography>
-                  <TextField required id="outlined-required"placeholder="Enter teacher Name" fullWidth/>
+                  <TextField required id="outlined-required"placeholder="Enter teacher Name" fullWidth size="small"/>
                 </Grid>
                 {/* บรรทัดที่2 */}
                 <Grid size={6}>
                   <Typography variant="h5" sx={{fontSize:16, px:1}}>คณะ</Typography>
-                  <TextField required id="outlined-required"placeholder="Enter faculty Name" fullWidth/>
+                  <TextField required id="outlined-required"placeholder="Enter faculty Name" fullWidth size="small"/>
                 </Grid>
                 <Grid size={6}>
                   <Typography variant="h5" sx={{fontSize:16, px:1}}>สาขา</Typography>
-                  <TextField required id="outlined-required"placeholder="Enter department" fullWidth/>
+                  <TextField required id="outlined-required"placeholder="Enter department" fullWidth size="small"/>
                 </Grid>
                 {/* บรรทัดที่3 */}
                 <Grid size={2}>
                   <Typography variant="h5" sx={{fontSize:16, px:1}}>ตอน</Typography>
-                  <TextField required id="outlined-required"placeholder="Enter section number" fullWidth/>
+                  <TextField required id="outlined-required"placeholder="Enter section number" fullWidth size="small"/>
                 </Grid>
                 <Grid size={2}>
                   <Typography variant="h5" sx={{fontSize:16, px:1}}>เทอม</Typography>
@@ -55,6 +53,7 @@ const CreateSubjectPage : FC = () => {
                     placeholder="Enter subject Name" 
                     defaultValue='1'
                     fullWidth
+                    size="small"
                   >
                     <MenuItem value='1'>1</MenuItem>
                     <MenuItem value='2'>2</MenuItem>
@@ -69,7 +68,7 @@ const CreateSubjectPage : FC = () => {
                     type="date"
                     id="outlined-required"
                     placeholder="Enter subject Name" 
-
+                    size="small"
                   />
                 </Grid>
                 <Grid size={4}>
@@ -80,6 +79,7 @@ const CreateSubjectPage : FC = () => {
                     type="date"
                     id="outlined-required"
                     placeholder="Enter subject Name" 
+                    size="small"
                   />
                 </Grid>
             </Grid>
@@ -88,7 +88,7 @@ const CreateSubjectPage : FC = () => {
             <Grid container spacing={3} sx={{display: 'flex', flexDirection:'row',justifyContent:'flex-end',my:6}}>
              {/* ปุ่มกด1 */}
               <Grid size={2}>
-                <Button variant="contained" fullWidth>ยกเลิก</Button>
+                <Button variant="contained" fullWidth color="error">ยกเลิก</Button>
               </Grid>
              {/* ปุ่มกด2 */}
               <Grid size={2}>

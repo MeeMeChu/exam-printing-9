@@ -27,7 +27,7 @@ export const AppProvider = ({ children } : { children : ReactNode }) => {
                 palette: {
                     mode,
                     primary: {
-                        main : '#B10000'
+                        main : '#000099'
                     },
                 },
                 typography: {
