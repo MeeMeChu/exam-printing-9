@@ -6,6 +6,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import Button from '@mui/material/Button';
 
 
+
 const rows: GridRowsProp = [
     { id: 1, col1: '344-101', col2: 'แคลคูลัส1', col3: "วิทยาศาสตร์", col4: "วิทยาการคอมพิวเตอร์", col5: "01", col6:"1" ,col7:"01/02/2024"},
     { id: 2, col1: '344-102', col2: 'แคลคูลัส2', col3: "วิทยาศาสตร์", col4: "วิทยาการคอมพิวเตอร์", col5: "01", col6:"2"   },
@@ -65,20 +66,21 @@ const columns: GridColDef[] = [
             <Tooltip key={1} title="แก้ไขข้อมูล">
                 <GridActionsCellItem
                     key={1}
-                    icon={<EditIcon color="primary"/>}
+                    icon={<EditIcon sx={{ color : "#000099"}} />}
                     label="Edit"
                     className="textPrimary"
                     color="inherit"
+                    
                 />
             </Tooltip>,
             <Tooltip key={2} title="ลบข้อมูล">
                 <GridActionsCellItem
                     key={2}
-                    icon={<DeleteIcon color="primary"/>}
+                    icon={<DeleteIcon sx={{ color : "#000099"}} />}
                     label="Delete"
                     color="inherit"
                 />
-            </Tooltip>,
+            </Tooltip>
             ];
         },
     },
@@ -94,15 +96,21 @@ const SubjectPage : FC = () => {
                 <Typography variant="h5">Subject Management</Typography>
 
                 <Button variant="contained" size="large" sx={{ 
-                p: 1,
-                width:100
-                
-               }}
->New</Button>
+                    p: 1,
+                    width:100,
+                    backgroundColor:'#000099'
+                }}
+                    >New</Button>
             </Box>
-               
-            <Box sx={{ height: 600, width : '100%',mt:2}}>
-                <DataGrid rows={rows} columns={columns} />
+            <Box
+                sx={{
+                    p: 5,
+                    boxShadow: '0px 8px 24px rgba(149, 157, 165, 0.2)'
+                }}
+            >
+                <Box sx={{ height: 600, width : '100%',mt:2}}>
+                    <DataGrid rows={rows} columns={columns} />
+                </Box>
             </Box>
         </Container>
     );
