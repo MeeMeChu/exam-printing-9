@@ -1,4 +1,4 @@
-import { FC } from "react"
+import { FC, useEffect, useState } from "react"
 import { Box, Container, Tooltip, Typography,IconButton } from '@mui/material';
 import { DataGrid, GridRowsProp, GridColDef, GridActionsCellItem } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
@@ -7,49 +7,50 @@ import Button from '@mui/material/Button';
 import { useNavigate } from 'react-router-dom';
 
 
-const rows: GridRowsProp = [
-    { id: 1, col1: '344-101', col2: 'แคลคูลัส1', col3: "วิทยาการคอมพิวเตอร์", col4: "01", col5:"1" ,col6:"01/02/2024",col7:"01/02/2024",col8:"ยังไม่ส่งข้อสอบ"},
-    { id: 2, col1: '344-102', col2: 'แคลคูลัส2', col3: "วิทยาการคอมพิวเตอร์", col4: "01", col5:"2"  ,col6:"01/02/2024",col7:"01/02/2024",col8:"รอแก้ไข"},
-    { id: 3, col1: '344-103', col2: 'แคลคูลัส3', col3: "วิทยาการคอมพิวเตอร์", col4: "02" , col5:"1",col6:"01/02/2024",col7:"01/02/2024",col8:"ยังไม่ส่งข้อสอบ"},
-    { id: 4, col1: '344-103', col2: 'แคลคูลัส3', col3: "วิทยาการคอมพิวเตอร์", col4: "02" , col5:"1",col6:"01/02/2024",col7:"01/02/2024",col8:"ส่งข้อสอบแล้ว"},
-    { id: 5, col1: '344-103', col2: 'แคลคูลัส3', col3: "วิทยาการคอมพิวเตอร์", col4: "02" , col5:"1",col6:"01/02/2024",col7:"01/02/2024",col8:"จัดพิมพ์เสร็จสิ้น"},
-    { id: 6, col1: '344-103', col2: 'แคลคูลัส3', col3: "วิทยาการคอมพิวเตอร์", col4: "02" , col5:"1",col6:"01/02/2024",col7:"01/02/2024",col8:"จัดพิมพ์เสร็จสิ้น"},
-    { id: 7, col1: '344-103', col2: 'แคลคูลัส3', col3: "วิทยาการคอมพิวเตอร์", col4: "02" , col5:"1",col6:"01/02/2024",col7:"01/02/2024",col8:"ส่งข้อสอบแล้ว"},
-    { id: 8, col1: '344-103', col2: 'แคลคูลัส3', col3: "วิทยาการคอมพิวเตอร์", col4: "02" , col5:"1",col6:"01/02/2024",col7:"01/02/2024",col8:"ส่งข้อสอบแล้ว"},
-];
+type Subjects = {
+    subID: string,
+    subName: string,
+    subFaculty: string,
+    subMajor: string,
+    subSectionID: string,
+    subMiddate?: Date,
+    subFinaldate?: Date,
+    subTerm: string,
+    subStatus: string
+}
 
 const columns: GridColDef[] = [
     { 
-        field: 'col1', 
+        field: 'subID', 
         headerName: 'รหัสวิชา', 
         width: 90 
     },
-    {   field: 'col2', 
+    {   field: 'subName', 
         headerName: 'ชื่อวิชา', 
         width: 150 
     },
-    {   field: 'col3', 
+    {   field: 'subMajor', 
         headerName: 'สาขา', 
         width: 180
     },
-    {   field: 'col4', 
+    {   field: 'subSectionID', 
         headerName: 'ตอน', 
         width: 50 
     },
-    {   field: 'col5', 
+    {   field: 'subTerm', 
         headerName: 'เทอม', 
         width: 50 
     },
-    {   field: 'col6', 
+    {   field: 'subMiddate', 
         headerName: 'วันที่สอบกลางภาค', 
         width: 120 
     },
-    {   field: 'col7', 
+    {   field: 'subFinaldate', 
         headerName: 'วันที่สอบปลายภาค', 
         width: 120 
     },
     {
-        field: 'col8',
+        field: 'subStatus',
         headerName: 'สถานะข้อสอบ',
         sortable: false,
         width: 200,
@@ -86,9 +87,6 @@ const columns: GridColDef[] = [
         headerAlign: 'center',
         align: 'center',
         renderCell: (params) => {
-            if (params.row.status === 'ยังไม่ส่งข้อสอบ' || params.row.status === 'จัดพิมพ์เสร็จสิ้น'){
-                return null;
-            }
             return (
                 <>
                     <IconButton
@@ -111,6 +109,27 @@ const columns: GridColDef[] = [
 
 const SubjectPage : FC = () => {
     const navigate = useNavigate();
+    const [subjectData, setSubjectData] = useState<Subjects[]>([]);
+
+    console.log(subjectData);
+
+    useEffect(() => {
+        const fetchSubjectsData = async () => {
+            try {
+                const response = await fetch('http://localhost:8000/api/subjects');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch subjects data')
+                }
+                const result = await response.json();
+
+                setSubjectData(result);
+            } catch (error) {
+                console.error("Error : ", error);
+            }
+        }
+
+        fetchSubjectsData();
+    },[]);
 
     return (
         <Container sx={{mt:15}}>
@@ -138,7 +157,7 @@ const SubjectPage : FC = () => {
                 }}
             >
                 <Box sx={{ height: 600, width : '100%',mt:2}}>
-                    <DataGrid rows={rows} columns={columns} />
+                    <DataGrid rows={subjectData.map((item, index) => ({ id: index, ...item })) || []} columns={columns} />
                 </Box>
             </Box>
         </Container>
