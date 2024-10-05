@@ -58,10 +58,13 @@ const CreateSubjectPage : FC = () => {
       } else {
         console.error('Failed to save data.');
       }
+
+      navigate('/subject');
     } catch (error) {
       console.error('Error:', error);
     }
   }
+
   const navigate = useNavigate();
 
   return (
@@ -210,7 +213,7 @@ const CreateSubjectPage : FC = () => {
               </Grid>
               {/* ปุ่มกด2 */}
               <Grid size={2}>
-                <Button type="submit" variant="contained" fullWidth sx={{backgroundColor:'#000099'}}>ยืนยัน</Button>
+                <Button type="submit" variant="contained" fullWidth >ยืนยัน</Button>
               </Grid>
             </Grid>
           </form>
