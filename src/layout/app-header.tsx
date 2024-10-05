@@ -1,7 +1,5 @@
-import { AppBar, Box, Button, IconButton, Toolbar, Typography } from "@mui/material"
+import { AppBar, Box, Button, Toolbar, Typography } from "@mui/material"
 import { FC } from "react";
-import MenuIcon from '@mui/icons-material/Menu';
-
 
 const AppHeader : FC = () => {
 
@@ -9,19 +7,9 @@ const AppHeader : FC = () => {
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="fixed">
                 <Toolbar>
-                <IconButton
-                    size="large"
-                    edge="start"
-                    color="inherit"
-                    aria-label="menu"
-                    sx={{ mr: 2 }}
-                >
-                    <MenuIcon />
-                </IconButton>
-                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                    Exam Printing
-                </Typography>
-                    <Button color="inherit">Login</Button>
+                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                        Exam Printing
+                    </Typography>
                 </Toolbar>
             </AppBar>
         </Box>

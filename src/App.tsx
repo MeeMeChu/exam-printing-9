@@ -10,7 +10,7 @@ function App() {
     <Fragment>
       <AppProvider>
         <CssBaseline />
-        <AppHeader/>
+        <AppHeader />
         <Routes />
       </AppProvider>
     </Fragment>
