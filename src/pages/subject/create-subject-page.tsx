@@ -5,6 +5,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid2';
 import { useNavigate } from 'react-router-dom';
+import dayjs from "dayjs";
 
 type Teachers = {
   userID: number,
@@ -23,6 +24,10 @@ type Subjects = {
   subFinaldate?: Date,
   subTerm: string,
   subStatus: string
+  examStdCount: number,
+  examStartDate: string,
+  examEndDate : string,
+  examRoom: string,
 }
 
 const CreateSubjectPage : FC = () => {
@@ -39,7 +44,11 @@ const CreateSubjectPage : FC = () => {
     subMiddate: new Date(''),
     subFinaldate: new Date(''),
     subTerm: '',
-    subStatus: 'ยังไม่ส่งข้อสอบ'
+    subStatus: 'ยังไม่ส่งข้อสอบ',
+    examStdCount: 0,
+    examStartDate: '',
+    examEndDate: '',
+    examRoom: '',
   });
 
   console.log(formData);
@@ -55,12 +64,37 @@ const CreateSubjectPage : FC = () => {
   const handbleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      const response = await fetch('http://localhost:8000/api/subjects/create', {
+      const responseSubject = await fetch('http://localhost:8000/api/subjects/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',       
+        },
+        body: JSON.stringify({
+          subID: formData?.subID,
+          teacherID: formData?.teacherID,
+          subName: formData?.subName,
+          subFaculty: formData?.subFaculty,
+          subMajor: formData?.subMajor,
+          subSectionID: formData?.subSectionID,
+          subMiddate: dayjs(formData?.subMiddate).toDate(),
+          subFinaldate: dayjs(formData?.subFinaldate).toDate(),
+          subTerm: formData?.subTerm,
+          subStatus: formData?.subStatus,
+        }),
+      });
+
+      const responseExam = await fetch('http://localhost:8000/api/exams/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          subID: formData?.subID,
+          examRoom: formData?.examRoom,
+          examStdCount: Number(formData?.examStdCount),
+          examStartDate: formData?.examStartDate,
+          examEndDate: formData?.examEndDate  
+        })
       });
 
       const responseUserSubject = await fetch('http://localhost:8000/api/userSubjects/create', {
@@ -69,12 +103,12 @@ const CreateSubjectPage : FC = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userID : formData.teacherID, 
-          subID : formData.subID
+          userID : formData?.teacherID, 
+          subID : formData?.subID
         })
       })
 
-      if (response.ok && responseUserSubject.ok) {
+      if (responseSubject.ok && responseUserSubject.ok && responseExam.ok) {
         console.log('Data saved successfully!');
       } else {
         console.error('Failed to save data.');
@@ -84,7 +118,7 @@ const CreateSubjectPage : FC = () => {
     } catch (error) {
       console.error('Error:', error);
     }
-  }
+  } 
 
   useEffect(() => {
     const fetchTeachers = async () => {
@@ -119,11 +153,10 @@ const CreateSubjectPage : FC = () => {
           <form onSubmit={handbleSubmit}>
             <Grid container spacing={3}>
                 {/* บรรทัดที่1 */}
-                <Grid size={2}>
+                <Grid size={{ xs: 12, md: 4}}>
                   <Typography variant="h5" sx={{fontSize:16 , px:1}}>รหัสวิชา</Typography>
                   <TextField 
                     required 
-                    id="outlined-required"
                     placeholder="000-000"  
                     fullWidth 
                     size="small"
@@ -132,10 +165,10 @@ const CreateSubjectPage : FC = () => {
                     onChange={handleChange}
                   />
                 </Grid>
-                <Grid size={5}>
+                <Grid size={4}>
                   <Typography variant="h5" sx={{fontSize:16, px:1}}>ชื่อวิชา</Typography>
                   <TextField 
-                    required id="outlined-required"
+                
                     placeholder="Enter subject Name" 
                     fullWidth 
                     size="small"
@@ -144,7 +177,7 @@ const CreateSubjectPage : FC = () => {
                     onChange={handleChange}
                   />
                 </Grid>
-                <Grid size={5}>
+                <Grid size={4}>
                   <Typography variant="h5" sx={{fontSize:16, px:1}}>ชื่ออาจารย์</Typography>
                   <TextField
                     fullWidth 
@@ -168,7 +201,6 @@ const CreateSubjectPage : FC = () => {
                   <Typography variant="h5" sx={{fontSize:16, px:1}}>คณะ</Typography>
                   <TextField 
                     required 
-                    id="outlined-required"
                     placeholder="Enter faculty Name" 
                     fullWidth 
                     size="small"
@@ -181,7 +213,6 @@ const CreateSubjectPage : FC = () => {
                   <Typography variant="h5" sx={{fontSize:16, px:1}}>สาขา</Typography>
                   <TextField 
                     required 
-                    id="outlined-required"
                     placeholder="Enter department" 
                     fullWidth size="small"
                     name="subMajor"
@@ -194,8 +225,7 @@ const CreateSubjectPage : FC = () => {
                 <Grid size={2}>
                   <Typography variant="h5" sx={{fontSize:16, px:1}}>ตอน</Typography>
                   <TextField 
-                  required 
-                  id="outlined-required"
+                  required
                   placeholder="0" 
                   fullWidth 
                   size="small"
@@ -207,7 +237,7 @@ const CreateSubjectPage : FC = () => {
                 <Grid size={2}>
                   <Typography variant="h5" sx={{fontSize:16, px:1}}>เทอม</Typography>
                   <TextField 
-                    required id="outlined-required"
+                
                     select
                     placeholder="Enter subject Name" 
                     defaultValue='1'
@@ -228,7 +258,6 @@ const CreateSubjectPage : FC = () => {
                     required 
                     fullWidth
                     type="date"
-                    id="outlined-required"
                     placeholder="Enter subject Name" 
                     size="small"
                     name="subMiddate"
@@ -242,7 +271,6 @@ const CreateSubjectPage : FC = () => {
                     fullWidth
                     required 
                     type="date"
-                    id="outlined-required"
                     placeholder="Enter subject Name" 
                     size="small"
                     name="subFinaldate"
@@ -250,15 +278,62 @@ const CreateSubjectPage : FC = () => {
                     onChange={handleChange}
                   />
                 </Grid>
+                <Grid size={3}>
+                  <Typography variant="h5" sx={{ fontSize:16, px:1}}>จำนวนนักศึกษาที่เข้าสอบ</Typography>
+                  <TextField 
+                    fullWidth
+                    required 
+                    type="number"
+                    placeholder="Enter subject Name" 
+                    size="small"
+                    name="examStdCount"
+                    value={formData?.examStdCount}
+                    onChange={handleChange}
+                  />
+                </Grid>
+                <Grid size={3}>
+                  <Typography variant="h5" sx={{ fontSize:16, px:1}}>เลขห้องสอบ</Typography>
+                  <TextField 
+                    fullWidth
+                    required 
+                    type="text "
+                    placeholder="Enter subject Name" 
+                    size="small"
+                    name="examRoom"
+                    value={formData?.examRoom}
+                    onChange={handleChange}
+                  />
+                </Grid>
+                <Grid size={3}>
+                  <Typography variant="h5" sx={{ fontSize:16, px:1}}>เวลาที่เริ่มสอบ</Typography>
+                  <TextField 
+                    fullWidth
+                    required 
+                    type="time"
+                    size="small"
+                    name="examStartDate"
+                    value={formData?.examStartDate}
+                    onChange={handleChange}
+                  />
+                </Grid>
+                <Grid size={3}>
+                  <Typography variant="h5" sx={{ fontSize:16, px:1}}>เวลาที่สิ้นสุดการสอบ </Typography>
+                  <TextField 
+                    fullWidth
+                    required
+                    type="time"
+                    size="small"
+                    name="examEndDate"
+                    value={formData?.examEndDate}
+                    onChange={handleChange}
+                  />
+                </Grid>
             </Grid>
 
-              {/* ปุ่มกดนะจ้ะ */}
             <Grid container spacing={3} sx={{display: 'flex', flexDirection:'row',justifyContent:'flex-end',my:6}}>
-              {/* ปุ่มกด1 */}
               <Grid size={2}>
                 <Button variant="contained" fullWidth color="error" onClick={()=> navigate('/subject')}>ยกเลิก</Button>
               </Grid>
-              {/* ปุ่มกด2 */}
               <Grid size={2}>
                 <Button type="submit" variant="contained" fullWidth >ยืนยัน</Button>
               </Grid>

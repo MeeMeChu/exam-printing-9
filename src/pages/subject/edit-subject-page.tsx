@@ -5,8 +5,15 @@ import Grid from '@mui/material/Grid2';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 
+type Teachers = {
+    userID: number,
+    userFname: string,
+    userLname: string
+}
+
 type Subjects = {
     subID: string,
+    teacherID: number,
     subName: string,
     subFaculty: string,
     subMajor: string,
@@ -16,10 +23,19 @@ type Subjects = {
     subTerm: string,
     subStatus: string
 }
+
+type Exams = {
+    examStdCount: number,
+    examStartDate: string,
+    examEndDate: string,
+    examRoom: string,
+}
 const EditSubjeactPage: FC = () => {
     const { id } = useParams<{ id: string }>();
+    const [teacher, setTeacher] = useState<Teachers[]>([]);
     const [formData, setFormData] = useState<Subjects>({
         subID: '',
+        teacherID: 0,
         subName: '',
         subFaculty: '',
         subMajor: '',
@@ -29,32 +45,28 @@ const EditSubjeactPage: FC = () => {
         subTerm: '',
         subStatus: 'ยังไม่ส่งข้อสอบ'
     });
+    const [formExamData, setFormExamData] = useState<Exams>({
+        examStdCount: 0,
+        examStartDate: '',
+        examEndDate: '',
+        examRoom: '',
+    })
     const navigate = useNavigate();
 
     console.log(formData);
-
-    useEffect(() => {
-        const fetchSubjectData = async () => {
-            try {
-                const response = await fetch(`http://localhost:8000/api/subjects/${id}`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch subjects data')
-                }
-                const result = await response.json();
-
-                setFormData(result);
-            } catch (error) {
-                console.error("Error : ", error);
-            }
-        }
-
-        fetchSubjectData();
-    },[]);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
         setFormData({
             ...formData,
+            [name] : value
+        })
+    }
+    
+    const handleExamChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = event.target;
+        setFormExamData({
+            ...formExamData,
             [name] : value
         })
     }
@@ -86,6 +98,38 @@ const EditSubjeactPage: FC = () => {
         }
     }
 
+    useEffect(() => {
+        const fetchTeachers = async () => {
+            try {
+                const response = await fetch('http://localhost:8000/api/users/teachers')
+                if (!response.ok) {
+                    throw new Error('Failed to fetch subjects data')
+                }
+                const result = await response.json();
+                console.log(result);
+                setTeacher(result);
+            } catch (error) {
+                console.error("Error : ", error);
+            }
+        }
+        const fetchSubjectData = async () => {
+            try {
+                const response = await fetch(`http://localhost:8000/api/subjects/${id}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch subjects data')
+                }
+                const result = await response.json();
+                console.log(result);
+                setFormData(result);
+            } catch (error) {
+                console.error("Error : ", error);
+            }
+        }
+
+        fetchTeachers();
+        fetchSubjectData();
+    },[]);
+
     return (
         <Container sx={{mt:15}}>
             <Box
@@ -102,85 +146,96 @@ const EditSubjeactPage: FC = () => {
                 <form onSubmit={handbleSubmit}>
                     <Grid container spacing={3}>
                         {/* บรรทัดที่1 */}
-                        <Grid size={2}>
-                            <Typography variant="h5" sx={{ fontSize: 16, px: 1 }}>รหัสวิชา</Typography>
+                        <Grid size={{ xs: 12, md: 4}}>
+                            <Typography variant="h5" sx={{fontSize:16 , px:1}}>รหัสวิชา</Typography>
                             <TextField 
                                 required 
-                                id="outlined-required" 
-                                placeholder="Enter subject Name" 
+                                placeholder="000-000"  
                                 fullWidth 
-                                disabled
+                                size="small"
                                 name="subID"
                                 value={formData?.subID}
                                 onChange={handleChange}
                             />
                         </Grid>
-                        <Grid size={5}>
-                            <Typography variant="h5" sx={{ fontSize: 16, px: 1 }}>ชื่อวิชา</Typography>
+                        <Grid size={4}>
+                            <Typography variant="h5" sx={{fontSize:16, px:1}}>ชื่อวิชา</Typography>
                             <TextField 
-                                required 
-                                id="outlined-required" 
+                            
                                 placeholder="Enter subject Name" 
                                 fullWidth 
+                                size="small"
                                 name="subName"
                                 value={formData?.subName}
                                 onChange={handleChange}
-                                />
-                        </Grid>
-                        <Grid size={5}>
-                            <Typography variant="h5" sx={{ fontSize: 16, px: 1 }}>ชื่ออาจารย์</Typography>
-                            <TextField  
-                            id="outlined-required"
-                            placeholder="Enter teacher Name" 
-                            fullWidth 
                             />
+                        </Grid>
+                        <Grid size={4}>
+                            <Typography variant="h5" sx={{fontSize:16, px:1}}>ชื่ออาจารย์</Typography>
+                            <TextField
+                                fullWidth 
+                                size="small"
+                                select
+                                name="teacherID"
+                                value={formData?.teacherID}
+                                onChange={handleChange}
+                            > 
+                                {teacher.map((item) => {
+                                return (
+                                    <MenuItem key={item.userID} value={item.userID}>
+                                        {item.userFname} {item.userLname}
+                                    </MenuItem>
+                                );
+                                })}
+                            </TextField>
                         </Grid>
                         {/* บรรทัดที่2 */}
                         <Grid size={6}>
-                            <Typography variant="h5" sx={{ fontSize: 16, px: 1 }}>คณะ</Typography>
+                            <Typography variant="h5" sx={{fontSize:16, px:1}}>คณะ</Typography>
                             <TextField 
-                            required 
-                            id="outlined-required" 
-                            placeholder="Enter faculty Name" 
-                            fullWidth 
-                            name="subFaculty"
-                            value={formData?.subFaculty}
-                            onChange={handleChange}
+                                required 
+                                placeholder="Enter faculty Name" 
+                                fullWidth 
+                                size="small"
+                                name="subFaculty"
+                                value={formData?.subFaculty}
+                                onChange={handleChange}
                             />
                         </Grid>
                         <Grid size={6}>
-                            <Typography variant="h5" sx={{ fontSize: 16, px: 1 }}>สาขา</Typography>
+                            <Typography variant="h5" sx={{fontSize:16, px:1}}>สาขา</Typography>
                             <TextField 
-                            required 
-                            id="outlined-required" 
-                            placeholder="Enter department" 
-                            fullWidth 
-                            name="subMajor"
-                            value={formData?.subMajor}
-                            onChange={handleChange}
+                                required 
+                                placeholder="Enter department" 
+                                fullWidth size="small"
+                                name="subMajor"
+                                value={formData?.subMajor}
+                                onChange={handleChange}
+
                             />
                         </Grid>
                         {/* บรรทัดที่3 */}
                         <Grid size={2}>
-                            <Typography variant="h5" sx={{ fontSize: 16, px: 1 }}>ตอน</Typography>
+                            <Typography variant="h5" sx={{fontSize:16, px:1}}>ตอน</Typography>
                             <TextField 
-                            required 
-                            id="outlined-required" 
-                            placeholder="Enter section number" 
+                            required
+                            placeholder="0" 
                             fullWidth 
+                            size="small"
                             name="subSectionID"
                             value={formData?.subSectionID}
                             onChange={handleChange}
                             />
                         </Grid>
                         <Grid size={2}>
-                            <Typography variant="h5" sx={{ fontSize: 16, px: 1 }}>เทอม</Typography>
-                            <TextField
-                                required id="outlined-required"
+                            <Typography variant="h5" sx={{fontSize:16, px:1}}>เทอม</Typography>
+                            <TextField 
+                            
                                 select
-                                placeholder="Enter subject Name"
+                                placeholder="Enter subject Name" 
                                 defaultValue='1'
                                 fullWidth
+                                size="small"
                                 name="subTerm"
                                 value={formData?.subTerm}
                                 onChange={handleChange}
@@ -191,42 +246,89 @@ const EditSubjeactPage: FC = () => {
                             </TextField>
                         </Grid>
                         <Grid size={4}>
-                            <Typography variant="h5" sx={{ fontSize: 16, px: 1 }}>วันที่สอบกลางภาค</Typography>
-                            <TextField
-                                required
+                            <Typography variant="h5" sx={{fontSize:16, px:1}}>วันที่สอบกลางภาค</Typography>
+                            <TextField 
+                                required 
                                 fullWidth
                                 type="date"
-                                id="outlined-required"
-                                placeholder="Enter subject Name"
+                                placeholder="Enter subject Name" 
+                                size="small"
                                 name="subMiddate"
-                                value={dayjs(formData?.subMiddate).format('YYYY-MM-DD')}
+                                value={dayjs(formData?.subMiddate).format("YYYY-MM-DD")}
                                 onChange={handleChange}
                             />
                         </Grid>
                         <Grid size={4}>
-                            <Typography variant="h5" sx={{ fontSize: 16, px: 1 }}>วันที่สอบปลายภาค</Typography>
-                            <TextField
+                            <Typography variant="h5" sx={{ fontSize:16, px:1}}>วันที่สอบปลายภาค</Typography>
+                            <TextField 
                                 fullWidth
-                                required
+                                required 
                                 type="date"
-                                id="outlined-required"
-                                placeholder="Enter subject Name"
+                                placeholder="Enter subject Name" 
+                                size="small"
                                 name="subFinaldate"
-                                value={dayjs(formData?.subFinaldate).format('YYYY-MM-DD')}
+                                value={dayjs(formData?.subFinaldate).format("YYYY-MM-DD")}
                                 onChange={handleChange}
                             />
                         </Grid>
+                        {/* <Grid size={3}>
+                            <Typography variant="h5" sx={{ fontSize:16, px:1}}>จำนวนนักศึกษาที่เข้าสอบ</Typography>
+                            <TextField 
+                                fullWidth
+                                required 
+                                type="number"
+                                placeholder="Enter subject Name" 
+                                size="small"
+                                name="examStdCount"
+                                value={formExamData?.examStdCount}
+                                onChange={handleExamChange}
+                            />
+                        </Grid>
+                        <Grid size={3}>
+                            <Typography variant="h5" sx={{ fontSize:16, px:1}}>เลขห้องสอบ</Typography>
+                            <TextField 
+                                fullWidth
+                                required 
+                                type="text "
+                                placeholder="Enter subject Name" 
+                                size="small"
+                                name="examRoom"
+                                value={formExamData?.examRoom}
+                                onChange={handleExamChange}
+                            />
+                        </Grid>
+                        <Grid size={3}>
+                            <Typography variant="h5" sx={{ fontSize:16, px:1}}>เวลาที่เริ่มสอบ</Typography>
+                            <TextField 
+                                fullWidth
+                                required 
+                                type="time"
+                                size="small"
+                                name="examStartDate"
+                                value={formExamData?.examStartDate}
+                                onChange={handleExamChange}
+                            />
+                        </Grid>
+                        <Grid size={3}>
+                            <Typography variant="h5" sx={{ fontSize:16, px:1}}>เวลาที่สิ้นสุดการสอบ </Typography>
+                            <TextField 
+                                fullWidth
+                                required
+                                type="time"
+                                size="small"
+                                name="examEndDate"
+                                value={formExamData?.examEndDate}
+                                onChange={handleExamChange}
+                            />
+                        </Grid> */}
                     </Grid>
 
-                    {/* ปุ่มกดนะจ้ะ */}
-                    <Grid container spacing={3} sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', my: 6 }}>
-                        {/* ปุ่มกด1 */}
+                    <Grid container spacing={3} sx={{display: 'flex', flexDirection:'row',justifyContent:'flex-end',my:6}}>
                         <Grid size={2}>
                             <Button variant="contained" fullWidth color="error" onClick={()=> navigate('/subject')}>ยกเลิก</Button>
                         </Grid>
-                        {/* ปุ่มกด2 */}
                         <Grid size={2}>
-                            <Button variant="contained" fullWidth type='submit'>ยืนยัน</Button>
+                            <Button type="submit" variant="contained" fullWidth >ยืนยัน</Button>
                         </Grid>
                     </Grid>
                 </form>
