@@ -1,4 +1,4 @@
-import { FC ,useEffect, useState } from "react"
+import { FC , useEffect, useState } from "react"
 import { Box, Container, Typography } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
@@ -6,8 +6,15 @@ import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid2';
 import { useNavigate } from 'react-router-dom';
 
+type Teachers = {
+  userID: number,
+  userFname: string,
+  userLname: string
+}
+
 type Subjects = {
   subID: string,
+  teacherID: number,
   subName: string,
   subFaculty: string,
   subMajor: string,
@@ -20,8 +27,11 @@ type Subjects = {
 
 const CreateSubjectPage : FC = () => {
 
+  const navigate = useNavigate();
+  const [teacher, setTeacher] = useState<Teachers[]>([]);
   const [formData, setFormData] = useState<Subjects>({
     subID: '',
+    teacherID: 0,
     subName: '',
     subFaculty: '',
     subMajor: '',
@@ -36,10 +46,10 @@ const CreateSubjectPage : FC = () => {
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       const { name, value } = event.target;
-      setFormData({
-        ...formData,
+      setFormData((prevData) => ({
+        ...prevData,
         [name] : value
-      })
+      }))
   }
 
   const handbleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -53,7 +63,18 @@ const CreateSubjectPage : FC = () => {
         body: JSON.stringify(formData),
       });
 
-      if (response.ok) {
+      const responseUserSubject = await fetch('http://localhost:8000/api/userSubjects/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userID : formData.teacherID, 
+          subID : formData.subID
+        })
+      })
+
+      if (response.ok && responseUserSubject.ok) {
         console.log('Data saved successfully!');
       } else {
         console.error('Failed to save data.');
@@ -65,7 +86,23 @@ const CreateSubjectPage : FC = () => {
     }
   }
 
-  const navigate = useNavigate();
+  useEffect(() => {
+    const fetchTeachers = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/api/users/teachers')
+        if (!response.ok) {
+          throw new Error('Failed to fetch subjects data')
+        }
+        const result = await response.json();
+        console.log(result);
+        setTeacher(result);
+      } catch (error) {
+        console.error("Error : ", error);
+      }
+    }
+
+    fetchTeachers();
+  },[]);
 
   return (
 
@@ -109,12 +146,22 @@ const CreateSubjectPage : FC = () => {
                 </Grid>
                 <Grid size={5}>
                   <Typography variant="h5" sx={{fontSize:16, px:1}}>ชื่ออาจารย์</Typography>
-                  <TextField 
-                    placeholder="Enter teacher Name" 
+                  <TextField
                     fullWidth 
                     size="small"
-
-                  />
+                    select
+                    name="teacherID"
+                    value={formData?.teacherID}
+                    onChange={handleChange}
+                  > 
+                    {teacher.map((item) => {
+                      return (
+                        <MenuItem key={item.userID} value={item.userID}>
+                          {item.userFname} {item.userLname}
+                        </MenuItem>
+                      );
+                    })}
+                  </TextField>
                 </Grid>
                 {/* บรรทัดที่2 */}
                 <Grid size={6}>

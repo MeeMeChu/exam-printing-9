@@ -67,7 +67,11 @@ const EditSubjeactPage: FC = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify({ 
+                    ...formData,
+                    subMiddate: dayjs(formData?.subMiddate).toDate(),
+                    subFinaldate: dayjs(formData?.subFinaldate).toDate()
+                }),
             });
     
             if (response.ok) {

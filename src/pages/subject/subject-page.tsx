@@ -209,7 +209,7 @@ const SubjectPage : FC = () => {
                     boxShadow: '0px 8px 24px rgba(149, 157, 165, 0.2)'
                 }}
             >
-                <Box sx={{ height: 600, width : '100%',mt:2}}>
+                <Box sx={{ height: 500, width : '100%',mt:2}}>
                     <DataGrid rows={subjectData.map((item, index) => ({ id: index, ...item })) || []} columns={columns} />
                 </Box>
 

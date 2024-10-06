@@ -30,8 +30,6 @@ const ExamPage : FC = () => {
     
     console.log(examData);
 
-
-    
     useEffect(() => {
         const fetchExamsData = async () => {
             try {
@@ -168,6 +166,7 @@ const ExamPage : FC = () => {
                 </Button>
             </Box>
                 <Box sx={{p: 5, boxShadow: '0px 8px 24px rgba(149, 157, 165, 0.2)'}}>
+                    <Box sx={{ height: 500, width : '100%', mt:2}}>
                         <DataGrid
                             sx={{boxShadow: 2}}
                             rows={examData.map((item) => ({ id: item.examID, ...item })) || []}
@@ -175,13 +174,14 @@ const ExamPage : FC = () => {
                             initialState={{
                                 pagination: {
                                     paginationModel: {
-                                    pageSize: 5,
+                                        pageSize: 5,
                                     },
                                 },
                             }}
                             
                             pageSizeOptions={[5]}
                         />
+                    </Box>
                 </Box>
             
         </Container>
