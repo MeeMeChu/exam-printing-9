@@ -4,15 +4,18 @@ import { AppProvider } from './context/AppContext'
 import AppHeader from './layout/app-header'
 import Routes from './routes'
 import './App.css'
+import { AuthProvider } from './context/AuthContext'
 
 function App() {
   return (
     <Fragment>
-      <AppProvider>
-        <CssBaseline />
-        <AppHeader />
-        <Routes />
-      </AppProvider>
+      <AuthProvider>
+        <AppProvider>
+          <CssBaseline />
+          <AppHeader />
+          <Routes />
+        </AppProvider>
+      </AuthProvider>
     </Fragment>
   )
 }

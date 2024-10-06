@@ -35,6 +35,8 @@ export const AuthProvider : FC<{ children: React.ReactNode }> = ({ children }) =
     const [ userLoggedIn, setUserLoggedIn ] = useState<boolean>(false);
     const [ loading, setLoading] = useState<boolean>(true);
 
+    console.log("currentUser", currentUser);
+
     const isTokenExpired = (token: string) => {
         const decoded: MyToken = jwtDecode(token);
         return decoded.exp * 1000 < Date.now(); // ตรวจสอบว่า expired หรือไม่
@@ -53,13 +55,17 @@ export const AuthProvider : FC<{ children: React.ReactNode }> = ({ children }) =
     },[]);
 
     const login = async (username: string, password: string) => {
+        setLoading(true);
         try {
             const response = await fetch("http://localhost:8000/api/auth/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ username, password }),
+                body: JSON.stringify({ 
+                    Username : username, 
+                    Password: password 
+                }),
             });
 
             if (!response.ok) {
@@ -69,7 +75,7 @@ export const AuthProvider : FC<{ children: React.ReactNode }> = ({ children }) =
             const { accessToken } = await response.json();
             localStorage.setItem("accessToken", accessToken);
 
-            const user = JSON.parse(atob(accessToken.split('.')[1]));
+            const user = jwtDecode<MyToken>(accessToken);
             setCurrentUser(user);
             setUserLoggedIn(true);
         } catch (error) {

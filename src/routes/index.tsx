@@ -13,13 +13,21 @@ import EditExamPage from '../pages/exam/edit-exam.page';
 import LoginPage from '../pages/login-page';
 import CreateAdminPage from '../pages/admin/create-admin-page';
 import PrintingPage from '../pages/printing/printing-page';
+import RoleRoutes from './role-routes';
+import ProtectedRoute from '../components/protected-route';
+import UnauthorizedPage from '../pages/unauthorized-page';
+
 const Routes : React.FC = () => {
     const element = useRoutes([
-        { path: '/', element: <LoginPage />},
+        { path: '/', element: <RoleRoutes />},
         { path: 'login', element: <LoginPage />},
         {
             path: 'admin', 
-            element: <Outlet/>, 
+            element: (
+                <ProtectedRoute requiredRole="ADMIN">
+                    <Outlet/>   
+                </ProtectedRoute>
+            ), 
             children: [
                 {
                     path: '',
@@ -32,7 +40,12 @@ const Routes : React.FC = () => {
             ]
         },
         {
-            path: 'subject', element: <Outlet/>,
+            path: 'subject', 
+            element: (
+                <ProtectedRoute requiredRole="TECHNICAL">
+                    <Outlet/>   
+                </ProtectedRoute>
+            ), 
             children: [
                 {
                     path: '',
@@ -50,7 +63,11 @@ const Routes : React.FC = () => {
         },
         {
             path: 'exam',
-            element: <Outlet/>,
+            element: (
+                <ProtectedRoute requiredRole="TEACHER">
+                    <Outlet/>   
+                </ProtectedRoute>
+            ), 
             children: [
                 {
                     path: '',
@@ -68,7 +85,11 @@ const Routes : React.FC = () => {
         },
         {
             path:'backup' ,
-            element:<Outlet/>,
+            element: (
+                <ProtectedRoute requiredRole="TECHNICAL">
+                    <Outlet/>   
+                </ProtectedRoute>
+            ), 
             children: [
                 {
                     path: '',
@@ -92,13 +113,21 @@ const Routes : React.FC = () => {
         },
         {
             path:'printing' ,
-            element: <Outlet/>,
+            element: (
+                <ProtectedRoute requiredRole="TECHNICAL">
+                    <Outlet/>   
+                </ProtectedRoute>
+            ), 
             children: [
                 {
                     path: '',
                     element: <PrintingPage />
                 },
             ]
+        },
+        {
+            path: 'unauthorized',
+            element: <UnauthorizedPage/>
         },
         {
             path: '*',
