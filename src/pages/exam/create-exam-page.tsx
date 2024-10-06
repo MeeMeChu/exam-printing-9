@@ -5,7 +5,7 @@ import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid2';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
-const CraeteExamPage : FC = () => {
+const CreateExamPage : FC = () => {
 
     const VisuallyHiddenInput = styled('input')({
         clip: 'rect(0 0 0 0)',
@@ -97,4 +97,4 @@ const CraeteExamPage : FC = () => {
     )
 }
 
-export default CraeteExamPage
+export default CreateExamPage
