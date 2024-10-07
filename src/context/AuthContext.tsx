@@ -1,101 +1,114 @@
-import { createContext, FC, useContext, useEffect, useState } from "react";
-import { jwtDecode } from "jwt-decode";
+import { createContext, useContext, useEffect, useState, ReactNode, FC } from "react";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, User } from "firebase/auth";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { auth, db } from "../config/firebase-config";
 
-type MyToken = {
-    userID: string,
-    userEmail: string,
-    userRole: string,
-    Username: string,
-    exp: number
+enum Role {
+    STAFF = "STAFF",
+    ADMIN = "ADMIN",
+    TEACHER = "TEACHER",
+    TECHNICAL = "TECHNICAL"
 }
 
-type User = {
-    userID : string,
-    Username: string,
-    userRole: string,
-    userEmail: string
+type UserProfile = {
+    userRole : Role
 }
 
 type AuthContextType = {
-    currentUser: User | null,
-    userLoggedIn: boolean,
-    login: (username: string, password: string) => void,
-    logout: () => void,
-}
-
+    currentUser : User | null,
+    userProfile : UserProfile | null,
+    userLoggedIn : boolean,
+    loading : boolean,
+    signUpWithEmail: (email: string, password: string, userFname: string, userLname: string) => void;
+    signInWithEmail: (email: string, password: string) => void;
+    logout: () => void;
+};  
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const useAuth = () => {
     return useContext(AuthContext);
 }
 
-export const AuthProvider : FC<{ children: React.ReactNode }> = ({ children }) => {
-
+export const AuthProvider : FC<{children: ReactNode}> = (props) => {
+    const { children } = props;
     const [ currentUser, setCurrentUser ] = useState<User | null>(null);
+    const [ userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [ userLoggedIn, setUserLoggedIn ] = useState<boolean>(false);
-    const [ loading, setLoading] = useState<boolean>(true);
+    const [ loading, setLoading ] = useState<boolean>(true);
 
-    console.log("currentUser", currentUser);
-
-    const isTokenExpired = (token: string) => {
-        const decoded: MyToken = jwtDecode(token);
-        return decoded.exp * 1000 < Date.now(); // ตรวจสอบว่า expired หรือไม่
-    };
+    console.log("Login แล้วหรือยัง : ", userLoggedIn);
 
     useEffect(() => {
-        const accessToken = localStorage.getItem("accessToken");
-        if (accessToken && !isTokenExpired(accessToken)) {
-            const user = jwtDecode<MyToken>(accessToken);
-            setCurrentUser(user);
-            setUserLoggedIn(true);
-        } else {
-            logout();
-        }
-        setLoading(false);
-    },[]);
+        const unsubscribe = auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                setCurrentUser(user);
+                setUserLoggedIn(true);
 
-    const login = async (username: string, password: string) => {
-        setLoading(true);
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    setUserProfile({
+                        userRole: userData.role
+                    });
+                }
+
+            } else {
+                setCurrentUser(null);
+                setUserLoggedIn(false);
+                setUserProfile(null);
+            }
+            setLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+    const signUpWithEmail = async (email: string, password: string, userFname: string, userLname: string) => {
         try {
-            const response = await fetch("http://localhost:8000/api/auth/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ 
-                    Username : username, 
-                    Password: password 
-                }),
+            const result = await createUserWithEmailAndPassword(auth, email, password);
+            const user = result.user;
+
+            await setDoc(doc(db, 'users', user.uid), {
+                uid: user.uid,
+                email: user.email,
+                userFname: userFname,
+                userLname: userLname,
+                userRole: "STAFF",
             });
 
-            if (!response.ok) {
-                throw new Error("Failed to log in");
-            }
 
-            const { accessToken } = await response.json();
-            localStorage.setItem("accessToken", accessToken);
-
-            const user = jwtDecode<MyToken>(accessToken);
-            setCurrentUser(user);
-            setUserLoggedIn(true);
         } catch (error) {
-            console.error("Login error:", error);
-        } finally {
-            setLoading(false);
+            // console.error("Error during email registration:", error);
+            throw new Error("Error during email registration: ");
+        }
+    }
+
+    const signInWithEmail = async (email: string, password: string) => {
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+        } catch (error) {
+            // console.error("Error during email sign-in:", error);
+            throw new Error("Error during  email sign-in");
         }
     };
 
-    const logout = () => {
-        localStorage.removeItem("accessToken");
-        setCurrentUser(null);
-        setUserLoggedIn(false);
+
+    const logout = async () => {
+        try {
+            await signOut(auth);
+            setUserProfile(null);
+        } catch (error) {
+            console.error("Error during logout:", error);
+        }
     };
 
     const value = {
         currentUser,
+        userProfile,
         userLoggedIn,
         loading,
-        login,
+        signUpWithEmail,
+        signInWithEmail,
         logout,
     }
 

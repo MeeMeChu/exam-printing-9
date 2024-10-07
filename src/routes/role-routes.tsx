@@ -16,19 +16,19 @@ const RoleRoutes : React.FC = () => {
         return <Navigate to="/login" />;
     }
 
-    if (auth?.currentUser?.userRole === "STAFF") {
+    if (auth?.userProfile?.userRole === "STAFF") {
         return <Navigate to="/subject" />;
     }
 
-    if (auth?.currentUser?.userRole === "TECHNICAL") {
+    if (auth?.userProfile?.userRole === "TECHNICAL") {
         return <Navigate to="/profile" />;
     }
 
-    if (auth?.currentUser?.userRole === "TEACHER") {
+    if (auth?.userProfile?.userRole === "TEACHER") {
         return <Navigate to="/exam" />;
     }
 
-    if (auth?.currentUser?.userRole === "ADMIN") {
+    if (auth?.userProfile?.userRole === "ADMIN") {
         return <Navigate to="/admin" />;
     }
 

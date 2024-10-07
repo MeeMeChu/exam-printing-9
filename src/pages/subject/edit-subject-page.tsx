@@ -4,6 +4,8 @@ import { useParams } from 'react-router-dom'
 import Grid from '@mui/material/Grid2';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
+import { doc, getDoc, Timestamp, updateDoc } from 'firebase/firestore';
+import { db } from '../../config/firebase-config';
 
 type Teachers = {
     userID: number,
@@ -13,7 +15,6 @@ type Teachers = {
 
 type Subjects = {
     subID: string,
-    teacherID: number,
     subName: string,
     subFaculty: string,
     subMajor: string,
@@ -21,21 +22,18 @@ type Subjects = {
     subMiddate?: Date,
     subFinaldate?: Date,
     subTerm: string,
-    subStatus: string
-}
-
-type Exams = {
+    subStatus: string,
     examStdCount: number,
     examStartDate: string,
     examEndDate: string,
     examRoom: string,
 }
+
 const EditSubjeactPage: FC = () => {
     const { id } = useParams<{ id: string }>();
     const [teacher, setTeacher] = useState<Teachers[]>([]);
     const [formData, setFormData] = useState<Subjects>({
         subID: '',
-        teacherID: 0,
         subName: '',
         subFaculty: '',
         subMajor: '',
@@ -43,14 +41,12 @@ const EditSubjeactPage: FC = () => {
         subMiddate: new Date(''),
         subFinaldate: new Date(''),
         subTerm: '',
-        subStatus: 'ยังไม่ส่งข้อสอบ'
-    });
-    const [formExamData, setFormExamData] = useState<Exams>({
+        subStatus: 'ยังไม่ส่งข้อสอบ',
         examStdCount: 0,
         examStartDate: '',
         examEndDate: '',
         examRoom: '',
-    })
+    });
     const navigate = useNavigate();
 
     console.log(formData);
@@ -63,34 +59,24 @@ const EditSubjeactPage: FC = () => {
         })
     }
     
-    const handleExamChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = event.target;
-        setFormExamData({
-            ...formExamData,
-            [name] : value
-        })
-    }
 
     const handbleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+
+        if (!id) {
+            console.error("ID is undefined");
+            return; // หยุดการทำงานถ้าไม่มี id
+        }
+
         try {
-            const response = await fetch(`http://localhost:8000/api/subjects/edit/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ 
-                    ...formData,
-                    subMiddate: dayjs(formData?.subMiddate).toDate(),
-                    subFinaldate: dayjs(formData?.subFinaldate).toDate()
-                }),
+            const docRef = doc(db, "subjects", id);
+
+            await updateDoc(docRef, {
+                ...formData,
+                subMiddate : Timestamp.fromDate(dayjs(formData?.subMiddate).toDate()),
+                subFinaldate : Timestamp.fromDate(dayjs(formData?.subFinaldate).toDate()),
+                updateAt : Timestamp.now(),
             });
-    
-            if (response.ok) {
-                console.log('Data edit successfully!');
-            } else {
-                console.error('Failed to edit data.');
-            }
 
             navigate('/subject');
         } catch (error) {
@@ -99,43 +85,44 @@ const EditSubjeactPage: FC = () => {
     }
 
     useEffect(() => {
-        const fetchTeachers = async () => {
-            try {
-                const response = await fetch('http://localhost:8000/api/users/teachers')
-                if (!response.ok) {
-                    throw new Error('Failed to fetch subjects data')
-                }
-                const result = await response.json();
-                console.log(result);
-                setTeacher(result);
-            } catch (error) {
-                console.error("Error : ", error);
+        const fetchData = async () => {
+            if (!id) {
+                console.error("ID is undefined");
+                return; // หยุดการทำงานถ้าไม่มี id
+            }
+        
+            const docRef = doc(db, 'subjects', id);
+            const docSnap = await getDoc(docRef);
+        
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                setFormData({
+                    subID: data?.subID || '',
+                    subName: data?.subName || '',
+                    subFaculty: data?.subFaculty || '',
+                    subMajor: data?.subMajor || '',
+                    subSectionID : data?.subSectionID || '',
+                    subTerm: data?.subTerm || '',
+                    subMiddate: new Date(data?.subMiddate?.seconds * 1000) ||  new Date(''),
+                    subFinaldate: new Date(data?.subFinaldate?.seconds * 1000) || new Date(''),
+                    subStatus: data?.subStatus || '',
+                    examStdCount: data?.examStdCount || 0,
+                    examStartDate: data?.examStartDate || '',
+                    examEndDate: data?.examEndDate || '',
+                    examRoom: data?.examRoom || '',
+                });
             }
         }
-        const fetchSubjectData = async () => {
-            try {
-                const response = await fetch(`http://localhost:8000/api/subjects/${id}`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch subjects data')
-                }
-                const result = await response.json();
-                console.log(result);
-                setFormData(result);
-            } catch (error) {
-                console.error("Error : ", error);
-            }
-        }
-
-        fetchTeachers();
-        fetchSubjectData();
-    },[]);
+    
+        fetchData();
+    }, []);
 
     return (
         <Container sx={{mt:15}}>
             <Box
                 sx={{ my: 1, mt: 8 }}
             >
-                <Typography variant="h5" fontWeight='bold'>Edit subject {id}</Typography>
+                <Typography variant="h5" fontWeight='bold'>Edit subject {formData.subID}</Typography>
             </Box>
             <Box
                 sx={{
@@ -170,7 +157,7 @@ const EditSubjeactPage: FC = () => {
                                 onChange={handleChange}
                             />
                         </Grid>
-                        <Grid size={4}>
+                        {/* <Grid size={4}>
                             <Typography variant="h5" sx={{fontSize:16, px:1}}>ชื่ออาจารย์</Typography>
                             <TextField
                                 fullWidth 
@@ -188,7 +175,7 @@ const EditSubjeactPage: FC = () => {
                                 );
                                 })}
                             </TextField>
-                        </Grid>
+                        </Grid> */}
                         {/* บรรทัดที่2 */}
                         <Grid size={6}>
                             <Typography variant="h5" sx={{fontSize:16, px:1}}>คณะ</Typography>
@@ -271,7 +258,7 @@ const EditSubjeactPage: FC = () => {
                                 onChange={handleChange}
                             />
                         </Grid>
-                        {/* <Grid size={3}>
+                        <Grid size={3}>
                             <Typography variant="h5" sx={{ fontSize:16, px:1}}>จำนวนนักศึกษาที่เข้าสอบ</Typography>
                             <TextField 
                                 fullWidth
@@ -280,8 +267,8 @@ const EditSubjeactPage: FC = () => {
                                 placeholder="Enter subject Name" 
                                 size="small"
                                 name="examStdCount"
-                                value={formExamData?.examStdCount}
-                                onChange={handleExamChange}
+                                value={formData?.examStdCount}
+                                onChange={handleChange}
                             />
                         </Grid>
                         <Grid size={3}>
@@ -293,8 +280,8 @@ const EditSubjeactPage: FC = () => {
                                 placeholder="Enter subject Name" 
                                 size="small"
                                 name="examRoom"
-                                value={formExamData?.examRoom}
-                                onChange={handleExamChange}
+                                value={formData?.examRoom}
+                                onChange={handleChange}
                             />
                         </Grid>
                         <Grid size={3}>
@@ -305,8 +292,8 @@ const EditSubjeactPage: FC = () => {
                                 type="time"
                                 size="small"
                                 name="examStartDate"
-                                value={formExamData?.examStartDate}
-                                onChange={handleExamChange}
+                                value={formData?.examStartDate}
+                                onChange={handleChange}
                             />
                         </Grid>
                         <Grid size={3}>
@@ -317,10 +304,10 @@ const EditSubjeactPage: FC = () => {
                                 type="time"
                                 size="small"
                                 name="examEndDate"
-                                value={formExamData?.examEndDate}
-                                onChange={handleExamChange}
+                                value={formData?.examEndDate}
+                                onChange={handleChange}
                             />
-                        </Grid> */}
+                        </Grid>
                     </Grid>
 
                     <Grid container spacing={3} sx={{display: 'flex', flexDirection:'row',justifyContent:'flex-end',my:6}}>

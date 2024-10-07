@@ -10,31 +10,31 @@ const LoginPage : FC = () => {
 
     const auth = useAuth();
     const navigate = useNavigate();
-    const [username, setUsername] = useState<string>('');
+    const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [formValid, setFormValid] = useState<boolean>(false);
+    const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
 
-    console.log(username, password);
+    console.log(email, password);
     
-    const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setUsername(event.target.value);
+    const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setEmail(event.target.value);
         validateForm(event.target.value, password);
     };
     
     const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setPassword(event.target.value);
-        validateForm(username, event.target.value);
+        validateForm(email, event.target.value);
     };
 
-    const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSignInWithEmail =  async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         try {
-            auth?.login(username, password);
-            console.log('Login');
-            // navigate('')
+            await auth?.signInWithEmail(email, password);
         } catch (e) {
-            console.error("Error : ", e)
+            console.error("Error : ", e);
+            setOpenSnackbar(true);
         }
     }
 
@@ -69,21 +69,21 @@ const LoginPage : FC = () => {
                     boxShadow: '0px 8px 24px rgba(149, 157, 165, 0.2)' 
                 }}
             >   
-                <form onSubmit={handleLogin}>
+                <form onSubmit={handleSignInWithEmail}>
                     <Grid container spacing={1} sx={{display: 'flex', justifyContent: 'center' ,alignItems:'center'}}>
                         <Grid size={12}>
                             <Typography variant="h5" sx={{fontSize:24 , my: 1,fontWeight:'bold', textAlign: 'center'}}>Login</Typography>
                         </Grid>
 
                         <Grid size={12}>
-                            <Typography variant="h5" sx={{fontSize:16, my: 1  }}>Username</Typography>
-                            <TextField 
-                                required 
-                                placeholder="Enter username" 
+                            <Typography variant="h5" sx={{fontSize:16, my: 1  }}>Email</Typography>
+                            <TextField
+                                sx={{ mb: 3 }}
                                 fullWidth
                                 size="small"
-                                name="username"
-                                onChange={handleUsernameChange}
+                                name="email"
+                                placeholder="example@gmail.com"
+                                onChange={handleEmailChange}
                             />
                         </Grid>
 
@@ -91,7 +91,6 @@ const LoginPage : FC = () => {
                             <Typography variant="h5" sx={{fontSize:16, my: 1 }}>Password</Typography>
                             <TextField 
                                 required 
-                                placeholder="Enter your password" 
                                 fullWidth
                                 size="small"
                                 name="password"

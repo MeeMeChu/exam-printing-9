@@ -5,9 +5,11 @@ import { DataGrid, GridRowsProp, GridColDef, GridActionsCellItem } from '@mui/x-
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useNavigate } from 'react-router-dom';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../config/firebase-config';
 
 type Users = {
-    Username: string,
+    id?: string,
     userFname: string,
     userLname: string,
     userEmail: string,
@@ -66,7 +68,7 @@ const AdminPage : FC = () => {
             type: 'actions',
             headerName: 'Actions',
             width: 150,
-            getActions: (param) => {
+            getActions: (params) => {
                 return [
                 <Tooltip key={1} title="แก้ไขข้อมูล">
                     <GridActionsCellItem
@@ -93,20 +95,13 @@ const AdminPage : FC = () => {
     
     useEffect(() => {
         const fetchUser = async () => {
-            try {
-                const response = await fetch('http://localhost:8000/api/users')
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch subjects data')
-                }
-                const result = await response.json();
-
-                setFilteredData(result)
-            } catch (error) {
-                console.error("Error : ", error);
-            }
+            const querySnapshot = await getDocs(collection(db, 'users'));
+            const docsData = querySnapshot.docs.map(doc => ({ 
+                id: doc.id,
+                ...doc.data(),
+            })) as Users[];
+            setFilteredData(docsData);
         }
-        
         fetchUser();
     },[]);
 

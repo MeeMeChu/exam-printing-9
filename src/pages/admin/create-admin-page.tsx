@@ -5,8 +5,6 @@ import MenuItem from '@mui/material/MenuItem';
 import { useNavigate } from 'react-router-dom';
 
 type UserFormType = {
-    Username: string,
-    Password: string,
     userFname: string,
     userLname: string,
     userEmail: string,
@@ -16,8 +14,6 @@ type UserFormType = {
 const CreateAdminPage : FC= () => {
 
     const [formData, setFormData]  = useState<UserFormType>({
-        Username: '',
-        Password: '',
         userFname: '',
         userLname: '',
         userEmail: '',
@@ -58,12 +54,13 @@ const CreateAdminPage : FC= () => {
                         />
                     </Grid>
                     <Grid size={12}>
-                        <Typography variant="h5" sx={{fontSize:16 , px:1}}>Username</Typography>
+                        <Typography variant="h5" sx={{fontSize:16 , px:1}}>Email</Typography>
                         <TextField 
                             required 
-                            placeholder="Enter username" 
+                            placeholder="Enter email address" 
                             fullWidth 
-                            size="small"
+                            size="small" 
+                            type='email'
                         />
                     </Grid>
                     <Grid size={12}>
@@ -74,16 +71,6 @@ const CreateAdminPage : FC= () => {
                             fullWidth 
                             size="small" 
                             type='password'
-                        />
-                    </Grid>
-                    <Grid size={12}>
-                        <Typography variant="h5" sx={{fontSize:16 , px:1}}>Email</Typography>
-                        <TextField 
-                            required 
-                            placeholder="Enter email address" 
-                            fullWidth 
-                            size="small" 
-                            type='email'
                         />
                     </Grid>
                     <Grid size={12}>

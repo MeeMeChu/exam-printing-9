@@ -7,9 +7,12 @@ import Button from '@mui/material/Button';
 import { useNavigate } from 'react-router-dom';
 import dayjs from "dayjs";
 import DialogDelete from "../../components/dialog-delete";
+import { collection, deleteDoc, doc, getDocs } from "firebase/firestore";
+import { db } from "../../config/firebase-config";
 
 
 type Subjects = {
+    id? : string,
     subID: string,
     subName: string,
     subFaculty: string,
@@ -34,15 +37,7 @@ const SubjectPage : FC = () => {
 
     const handleDeleteAnnouncement = useCallback(async () => {
         try {
-            const response = await fetch(`http://localhost:8000/api/subjects/delete/${selectId}`, {
-                method : 'DELETE'
-            });
-
-            if (response.ok) {
-                console.log('Delete successfully!');
-            } else {
-                console.error('Failed to delete data.');
-            }
+            await deleteDoc(doc(db, "subjects", selectId));
             setRefresh(prev => !prev);
         } catch (error) {
             console.error("Error: ", error);
@@ -50,22 +45,19 @@ const SubjectPage : FC = () => {
     },[selectId]);
 
     useEffect(() => {
-        const fetchSubjectsData = async () => {
-            try {
-                const response = await fetch('http://localhost:8000/api/subjects');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch subjects data')
-                }
-                const result = await response.json();
+        const fetchData = async () => {
+            const querySnapshot = await getDocs(collection(db, 'subjects'));
+            const docsData = querySnapshot.docs.map(doc => ({ 
+                id: doc.id,
+                ...doc.data(),
+                subMiddate: (doc.data().subMiddate.toDate ? doc.data().subMiddate.toDate() : doc.data().subMiddate),
+                subFinaldate: (doc.data().subFinaldate.toDate ? doc.data().subFinaldate.toDate() : doc.data().subFinaldate) 
+            })) as Subjects[];
+            setSubjectData(docsData);
+        };
 
-                setSubjectData(result);
-            } catch (error) {
-                console.error("Error : ", error);
-            }
-        }
-
-        fetchSubjectsData();
-    },[refresh]);
+        fetchData();
+    }, [refresh]);
 
     const columns: GridColDef[] = [
         { 
@@ -150,7 +142,7 @@ const SubjectPage : FC = () => {
                         <GridActionsCellItem
                             icon={<EditIcon color='primary'/>}
                             label="Edit"
-                            onClick={() => navigate('edit/' + params?.row?.subID)}
+                            onClick={() => navigate('edit/' + params?.row?.id)}
                         />  
                     </Tooltip>,
                     <Tooltip key={2} title="ลบข้อมูล">
@@ -158,7 +150,7 @@ const SubjectPage : FC = () => {
                             icon={<DeleteIcon color='error'/>}
                             label="Delete"
                             onClick={() => {
-                                setSelectId(`${params?.row?.subID}`);
+                                setSelectId(`${params?.row?.id}`);
                                 setOpenDialogRemove(true);
                             }}
                         />  

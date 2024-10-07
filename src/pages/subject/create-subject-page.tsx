@@ -6,6 +6,8 @@ import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid2';
 import { useNavigate } from 'react-router-dom';
 import dayjs from "dayjs";
+import { addDoc, collection, Timestamp } from "firebase/firestore";
+import { db } from "../../config/firebase-config";
 
 type Teachers = {
   userID: number,
@@ -54,89 +56,48 @@ const CreateSubjectPage : FC = () => {
   console.log(formData);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      const { name, value } = event.target;
-      setFormData((prevData) => ({
-        ...prevData,
-        [name] : value
-      }))
-  }
+    const { name, value } = event.target;
+    setFormData({ ...formData, [name] : value});
+  };
+
 
   const handbleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      const responseSubject = await fetch('http://localhost:8000/api/subjects/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',       
-        },
-        body: JSON.stringify({
-          subID: formData?.subID,
-          teacherID: formData?.teacherID,
-          subName: formData?.subName,
-          subFaculty: formData?.subFaculty,
-          subMajor: formData?.subMajor,
-          subSectionID: formData?.subSectionID,
-          subMiddate: dayjs(formData?.subMiddate).toDate(),
-          subFinaldate: dayjs(formData?.subFinaldate).toDate(),
-          subTerm: formData?.subTerm,
-          subStatus: formData?.subStatus,
-        }),
-      });
+      
+      const response = await addDoc(collection(db, 'subjects'), { 
+        ...formData, 
+        subMiddate : Timestamp.fromDate(dayjs(formData?.subMiddate).toDate()),
+        subFinaldate : Timestamp.fromDate(dayjs(formData?.subFinaldate).toDate()),
+        createAt : Timestamp.now(),
+        updateAt : Timestamp.now(),
+      }); 
 
-      const responseExam = await fetch('http://localhost:8000/api/exams/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          subID: formData?.subID,
-          examRoom: formData?.examRoom,
-          examStdCount: Number(formData?.examStdCount),
-          examStartDate: formData?.examStartDate,
-          examEndDate: formData?.examEndDate  
-        })
-      });
-
-      const responseUserSubject = await fetch('http://localhost:8000/api/userSubjects/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userID : formData?.teacherID, 
-          subID : formData?.subID
-        })
-      })
-
-      if (responseSubject.ok && responseUserSubject.ok && responseExam.ok) {
-        console.log('Data saved successfully!');
-      } else {
-        console.error('Failed to save data.');
+      if (response != null) {
+        navigate('/');
       }
-
-      navigate('/subject');
     } catch (error) {
       console.error('Error:', error);
     }
   } 
 
-  useEffect(() => {
-    const fetchTeachers = async () => {
-      try {
-        const response = await fetch('http://localhost:8000/api/users/teachers')
-        if (!response.ok) {
-          throw new Error('Failed to fetch subjects data')
-        }
-        const result = await response.json();
-        console.log(result);
-        setTeacher(result);
-      } catch (error) {
-        console.error("Error : ", error);
-      }
-    }
+  // useEffect(() => {
+  //   const fetchTeachers = async () => {
+  //     try {
+  //       const response = await fetch('http://localhost:8000/api/users/teachers')
+  //       if (!response.ok) {
+  //         throw new Error('Failed to fetch subjects data')
+  //       }
+  //       const result = await response.json();
+  //       console.log(result);
+  //       setTeacher(result);
+  //     } catch (error) {
+  //       console.error("Error : ", error);
+  //     }
+  //   }
 
-    fetchTeachers();
-  },[]);
+  //   fetchTeachers();
+  // },[]);
 
   return (
 
