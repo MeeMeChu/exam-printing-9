@@ -1,4 +1,4 @@
-import { AppBar, Avatar, Box, IconButton, Link, ListItemIcon, Menu, MenuItem, Toolbar, Typography } from "@mui/material"
+import { AppBar, Box, IconButton, Link, ListItemIcon, Menu, MenuItem, Toolbar, Typography } from "@mui/material"
 import { FC, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import AccountCircle from '@mui/icons-material/AccountCircle';

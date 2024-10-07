@@ -1,5 +1,5 @@
 import { FC, useEffect, useState } from "react"
-import { Box, Container, Typography ,TextField,Button, Divider, InputAdornment, IconButton} from '@mui/material';
+import { Box, Container, Typography ,TextField,Button, Divider, InputAdornment, IconButton, Snackbar, Alert} from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
@@ -37,6 +37,10 @@ const LoginPage : FC = () => {
             setOpenSnackbar(true);
         }
     }
+
+    const handleCloseSnackbar = () => {
+        setOpenSnackbar(false);
+    };
 
     const validateForm = (username: string, password: string) => {
         // Check if both username and password have values
@@ -126,6 +130,16 @@ const LoginPage : FC = () => {
                     </Grid>
                 </form>
             </Box>
+            <Snackbar
+                anchorOrigin={{ vertical : 'top', horizontal: 'right' }}
+                open={openSnackbar}
+                autoHideDuration={3000}
+                onClose={handleCloseSnackbar}
+            >
+                <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
+                    Login failed. Please check your credentials and try again.
+                </Alert>
+            </Snackbar>
         </Container>
     )
 }

@@ -4,7 +4,6 @@ import SearchIcon from '@mui/icons-material/Search';
 import { DataGrid, GridColDef, GridActionsCellItem } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import Grid from '@mui/material/Grid2';
 import { useNavigate } from 'react-router-dom';
 import { collection, deleteDoc, doc, getDocs } from 'firebase/firestore';
 import { db } from '../../config/firebase-config';

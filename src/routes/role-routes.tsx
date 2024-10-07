@@ -21,7 +21,7 @@ const RoleRoutes : React.FC = () => {
     }
 
     if (auth?.userProfile?.userRole === "TECHNICAL") {
-        return <Navigate to="/profile" />;
+        return <Navigate to="/printing" />;
     }
 
     if (auth?.userProfile?.userRole === "TEACHER") {

@@ -1,14 +1,12 @@
-import { FC, useCallback, useEffect, useState } from "react"
+import { FC, useEffect, useState } from "react"
 import Container from '@mui/material/Container';
-import { Box,Typography , IconButton,Tooltip } from "@mui/material";
-import { DataGrid, GridColDef, GridValueGetter ,GridActionsCellItem} from '@mui/x-data-grid';
+import { Box,Typography ,Tooltip } from "@mui/material";
+import { DataGrid, GridColDef ,GridActionsCellItem} from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import Button from '@mui/material/Button';
 import { useNavigate } from 'react-router-dom';
 import dayjs from "dayjs";
 import { collection, getDocs, query, where } from "firebase/firestore";
-import { auth, db } from "../../config/firebase-config";
+import { db } from "../../config/firebase-config";
 import { useAuth } from "../../context/AuthContext";
 import { Subjects } from "../../types/subjects";
 
@@ -16,7 +14,7 @@ const ExamPage : FC = () => {
     const navigate = useNavigate();
     const auth = useAuth();
     const [subjectsList, setSubjectsList] = useState<Subjects[]>([]);
-    const [refresh, setRefresh] = useState<boolean>(false);
+    // const [refresh, setRefresh] = useState<boolean>(false);
     
     console.log(subjectsList);
 
@@ -49,7 +47,7 @@ const ExamPage : FC = () => {
         };
 
         fetchSubjects();
-        }, [refresh]);
+        }, []);
 
     const columns: GridColDef[] = [
         { 

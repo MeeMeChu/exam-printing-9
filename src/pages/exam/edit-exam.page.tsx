@@ -94,7 +94,6 @@ const EditExamPage: FC = () => {
 
   const handdleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
-      let url;
 
       if (!id) {
         console.error("ID is undefined");
