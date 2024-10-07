@@ -1,9 +1,10 @@
 import { FC, useCallback, useEffect, useState } from 'react'
-import { Box, Button, Container, InputAdornment, Paper, styled, TextField, Tooltip, Typography } from '@mui/material';
+import { Box, Button, Container, InputAdornment, TextField, Tooltip, Typography } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import { DataGrid, GridRowsProp, GridColDef, GridActionsCellItem } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridActionsCellItem } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Grid from '@mui/material/Grid2';
 import { useNavigate } from 'react-router-dom';
 import { collection, deleteDoc, doc, getDocs } from 'firebase/firestore';
 import { db } from '../../config/firebase-config';
@@ -22,6 +23,7 @@ const AdminPage : FC = () => {
     const navigate = useNavigate();
     const [searchText, setSearchText] = useState<string>('');
     const [filteredData, setFilteredData] = useState<Users[]>([]);
+    const [allData, setAllData] = useState<Users[]>([]);
     const [selectId, setSelectId] = useState<string>('');
     const [openDialogRemove, setOpenDialogRemove] = useState<boolean>(false);
     const [refresh, setRefresh] = useState<boolean>(false);
@@ -38,8 +40,13 @@ const AdminPage : FC = () => {
         const searchTerm = e.target.value;
         setSearchText(searchTerm);
 
+        if (searchTerm === '') {
+            setFilteredData(allData);
+            return;
+        }
+    
         const filtered = filteredData.filter((row) =>
-            row.userFname.toLowerCase().includes(searchText.toLowerCase())
+            row.userFname.toLowerCase().includes(searchTerm.toLowerCase())
         );
 
         setFilteredData(filtered);
@@ -65,11 +72,11 @@ const AdminPage : FC = () => {
         },
         {   field: 'userEmail', 
             headerName: 'Email', 
-            width: 270
+            width: 300
         },
         {   field: 'userRole', 
             headerName: 'Role', 
-            width: 150 
+            width: 200 
         },
         {
             field: 'actions',
@@ -109,6 +116,7 @@ const AdminPage : FC = () => {
                 ...doc.data(),
             })) as Users[];
             setFilteredData(docsData);
+            setAllData(docsData);
         }
         fetchUser();
     },[refresh]);
@@ -121,7 +129,7 @@ const AdminPage : FC = () => {
                     <Typography variant='h5'>User Management</Typography>
                     <Button variant="contained" onClick={()=> navigate('create')}>+ เพิ่มผู้ใช้</Button>
                 </Box>
-                <Paper sx={{ mt : 2, p: 2, boxShadow: '0px 8px 24px rgba(149, 157, 165, 0.2)' }}>
+                <Box sx={{ mt : 2, p: 4, boxShadow: '0px 8px 24px rgba(149, 157, 165, 0.2)' }}>
                     <TextField 
                         variant="outlined" 
                         placeholder='Search...'
@@ -134,7 +142,7 @@ const AdminPage : FC = () => {
                             } 
                         }}
                     />
-                    <Box sx={{height: 500, width : '100%', mt: 2,p: 5}}>
+                    <Box sx={{height: 500, width : '100%', mt: 2}}>
                         <DataGrid 
                             pagination
                             rows={filteredData.map((item, index) => ({ id: index, ...item })) || []}     
@@ -150,7 +158,7 @@ const AdminPage : FC = () => {
                         setOpen={setOpenDialogRemove} 
                         removeFunction={handleDeleteUser} 
                     />
-                </Paper>
+                </Box>
             </Box>
         </Container>
     );

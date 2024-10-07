@@ -7,7 +7,7 @@ import Button from '@mui/material/Button';
 import { useNavigate } from 'react-router-dom';
 import dayjs from "dayjs";
 import DialogDelete from "../../components/dialog-delete";
-import { collection, deleteDoc, doc, getDocs } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDoc, getDocs, setDoc, Timestamp } from "firebase/firestore";
 import { db } from "../../config/firebase-config";
 import { Subjects } from "../../types/subjects";
 
@@ -22,7 +22,31 @@ const SubjectPage : FC = () => {
     console.log(subjectData);
 
     const handleDeleteSubject = useCallback(async () => {
-        try {
+        try {   
+
+            const docRef = doc(db, "subjects", selectId);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                // 2. Save the document data to "backup" collection
+                const backupData = docSnap.data(); // ข้อมูลที่ต้องการเก็บสำรอง
+                await setDoc(doc(db, "backup", selectId), {
+                    ...backupData,
+                    backupDate: Timestamp.now(), // คุณอาจต้องการบันทึกวันที่สำรองข้อมูลด้วย
+                });
+    
+                // 3. ลบข้อมูลจาก collection "subjects"
+                await deleteDoc(doc(db, "subjects", selectId));
+    
+                // 4. ทำการ refresh
+                setRefresh(prev => !prev);
+    
+                console.log("Data has been backed up and deleted successfully.");
+            } else {
+                console.error("No such document!");
+            }
+
+
             await deleteDoc(doc(db, "subjects", selectId));
             setRefresh(prev => !prev);
         } catch (error) {

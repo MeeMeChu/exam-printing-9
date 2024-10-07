@@ -44,7 +44,7 @@ const DialogDelete : FC<DialogRemoveType> = (props) => {
                 <DialogTitle>{'คุณแน่ใจ?'}</DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-slide-description">
-                        คุณแน่ใจมั้ยที่จะลบข้อมูลที่คุณเลือก คุณจะไม่สามารถที่กู้คืนข้อมูลที่ลบได้
+                        คุณแน่ใจมั้ยที่จะลบข้อมูลที่คุณเลือก?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>

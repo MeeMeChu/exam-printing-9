@@ -4,7 +4,7 @@ import SubjectPage from '../pages/subject/subject-page';
 import AdminPage from '../pages/admin/admin-page';
 import CreateSubjectPage from '../pages/subject/create-subject-page';
 import EditSubjectPage from '../pages/subject/edit-subject-page';
-import CreateBackupPage from '../pages/backup/create-backup-page';
+import CreateBackupPage from '../pages/backup/view-backup-page';
 import BackupPage from '../pages/backup/backup-page';
 import ProfilePage from '../pages/profile-page';
 import ExamPage from '../pages/exam/exam-page';
@@ -17,6 +17,7 @@ import ProtectedRoute from '../components/protected-route';
 import UnauthorizedPage from '../pages/unauthorized-page';
 import EditAdminPage from '../pages/admin/edit-admin-page';
 import FormPrintingPage from '../pages/printing/form-printing-page';
+import ViewBackupPage from '../pages/backup/view-backup-page';
 
 const Routes : React.FC = () => {
     const element = useRoutes([
@@ -97,8 +98,8 @@ const Routes : React.FC = () => {
                     element: <BackupPage/>
                 },
                 {
-                    path: 'create',
-                    element: <CreateBackupPage/>
+                    path: 'view/:id',
+                    element: <ViewBackupPage/>
                 },
             ]
         },

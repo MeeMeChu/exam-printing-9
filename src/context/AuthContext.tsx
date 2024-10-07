@@ -4,7 +4,9 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, db } from "../config/firebase-config";
 
 type UserProfile = {
-    userRole : string
+    userFname: string,
+    userLname: string,
+    userRole: string,
 }
 
 type AuthContextType = {
@@ -42,6 +44,8 @@ export const AuthProvider : FC<{children: ReactNode}> = (props) => {
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
                     setUserProfile({
+                        userFname: userData.userFname,
+                        userLname: userData.userLname,
                         userRole: userData.userRole
                     });
                 }
@@ -75,6 +79,8 @@ export const AuthProvider : FC<{children: ReactNode}> = (props) => {
                     userRole: userRole,
                 });
                 setUserProfile({
+                    userFname: userFname,
+                    userLname: userLname,
                     userRole: userRole,
                 });
             } 

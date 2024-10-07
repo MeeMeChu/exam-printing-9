@@ -17,6 +17,11 @@ const PrintingPage :FC = () => {
 
     const [selectTerm, setSelectTerm] = useState('Midterm');
 
+    const [paginationModel, setPaginationModel] = useState({
+        page: 0,
+        pageSize: 10,
+    });
+
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         const searchTerm = e.target.value;
         setSearchText(searchTerm);
@@ -187,7 +192,13 @@ const PrintingPage :FC = () => {
                     </Grid>
                 </Grid>
                 <Box sx={{ height: 500, width : '100%',mt:2}}>
-                    <DataGrid rows={subjectList.map((item) => ({ id: item.id, ...item })) || []} columns={columns} />
+                    <DataGrid 
+                        rows={subjectList.map((item) => ({ id: item.id, ...item })) || []} 
+                        columns={columns} 
+                        pageSizeOptions={[10]}
+                        paginationModel={paginationModel}
+                        onPaginationModelChange={setPaginationModel}
+                    />
                 </Box>
             </Box>
         </Container>

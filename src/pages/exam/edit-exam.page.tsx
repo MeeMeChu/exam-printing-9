@@ -137,7 +137,7 @@ const EditExamPage: FC = () => {
         await updateDoc(docRef, {
           ...formData,
           subStatus: 'ส่งข้อสอบแล้ว',
-          update_at: Timestamp.now(),
+          updateAt: Timestamp.now(),
           examFileMidURL: midtermUrl,
           examFileFinalURL: finalUrl
         });

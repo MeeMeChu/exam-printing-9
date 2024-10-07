@@ -1,13 +1,16 @@
-import { Box, Container } from '@mui/material'
-import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
+import { Box, Container, Typography } from '@mui/material'
+import { doc, getDoc } from 'firebase/firestore';
 import { FC, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { db } from '../../config/firebase-config';
 import { Subjects } from '../../types/subjects';
+import Grid from '@mui/material/Grid2';
+import dayjs from 'dayjs';
 
 const FormPrintingPage : FC = () => {
 
     const { id } = useParams<{ id : string }>();
+    const [dataLoaded, setDataLoaded] = useState(false);
     const [subject, setSubject] = useState<Subjects>({
         subID: '',
         subTeacherID: '',
@@ -44,7 +47,8 @@ const FormPrintingPage : FC = () => {
         
             if (docSnap.exists()) {
                 const data = docSnap.data();
-                setSubject({
+                setSubject(prev  => ({
+                    ...prev,
                     subID: data.subID || '',
                     subTeacherID: data.subTeacherID || '',
                     subName: data.subName || '',
@@ -64,17 +68,57 @@ const FormPrintingPage : FC = () => {
                     examDetail: data.examDetail || '',
                     createAt: data.createAt?.toDate ? data.createAt.toDate() : new Date(data.createAt) || new Date(),
                     updateAt: data.updateAt?.toDate ? data.updateAt.toDate() : new Date(data.updateAt) || new Date()
-                });
+                }));
+
+                setDataLoaded(true);
+            } else {
+                console.error("Document does not exist");
             }
         }
-
         fetchData();
-        // window.print();
     }, [])
 
+    useEffect(() => {
+        if (dataLoaded) {
+            window.print(); // เรียกใช้ print เมื่อข้อมูลถูกโหลดเสร็จ
+        }
+    }, [dataLoaded]);
+
     return (
-        <Container sx={{ mt : 15 }}>
-            FormPrintingPage
+        <Container maxWidth="md" sx={{ mt : 15 }}>
+            <Box 
+                sx={{ my: 1 ,mt:8, textAlign: 'center'}}
+            >
+                <Typography variant="h5" fontWeight='bold'>คณะวิทยาศาสตร์ </Typography>
+                <Typography variant="h5" fontWeight='bold'>มหาวิทยาลัยสงขลานครินท์</Typography>
+            </Box>
+            <Grid container spacing={1.5} sx={{mt : 2}}>
+                <Grid size={9}>
+                    <Typography variant='body1'>การสอบวิชา {subject.subName}</Typography> 
+                </Grid>
+                <Grid size={3}>
+                    <Typography variant='body1'>รหัสวิชา {subject.subID}</Typography>
+                </Grid>
+                <Grid size={9}>
+                    <Typography variant='body1'>สอบวันที่ {dayjs(subject.subMiddate).format("DD/MM/YYYY")}</Typography>
+                </Grid>
+                <Grid size={3}>
+                    เวลา {subject.examStartDate} - {subject.examEndDate}
+                </Grid>
+                <Grid size={12}>
+                    ห้องสอบ {subject.examRoom}
+                </Grid>
+                <Grid size={12}>
+                    จำนวนนักศึกษา {subject.examStdCount} คน
+                </Grid>
+                <Grid size={12}>
+                    ซองนี้มีจำนวนข้อสอบ {Number(subject.examStdCount) + 2} ชุด
+                </Grid>
+                <Grid size={12}>
+                    <Typography variant='h6'>อุปกรณ์ที่ใช้หรือคำแนะนำผู้คุมสอบเพิ่มเติม </Typography>
+                    <Typography variant='body1'> {subject.examDetail} </Typography>
+                </Grid>
+            </Grid>
         </Container>
     )
 }
