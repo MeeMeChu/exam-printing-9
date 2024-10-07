@@ -13,6 +13,7 @@ import EditExamPage from '../pages/exam/edit-exam.page';
 import LoginPage from '../pages/login-page';
 import CreateAdminPage from '../pages/admin/create-admin-page';
 import PrintingPage from '../pages/printing/printing-page';
+import FormPrintingPage from '../pages/printing/from-printing-page';
 import RoleRoutes from './role-routes';
 import ProtectedRoute from '../components/protected-route';
 import UnauthorizedPage from '../pages/unauthorized-page';
@@ -122,6 +123,10 @@ const Routes : React.FC = () => {
                 {
                     path: '',
                     element: <PrintingPage />
+                },
+                {
+                    path: 'from',
+                    element: <FormPrintingPage />
                 },
             ]
         },
