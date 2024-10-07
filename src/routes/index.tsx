@@ -16,6 +16,7 @@ import PrintingPage from '../pages/printing/printing-page';
 import RoleRoutes from './role-routes';
 import ProtectedRoute from '../components/protected-route';
 import UnauthorizedPage from '../pages/unauthorized-page';
+import EditAdminPage from '../pages/admin/edit-admin-page';
 
 const Routes : React.FC = () => {
     const element = useRoutes([
@@ -37,6 +38,10 @@ const Routes : React.FC = () => {
                     path: 'create',
                     element: <CreateAdminPage/>
                 },
+                {
+                    path: 'edit/:id',
+                    element: <EditAdminPage />
+                }
             ]
         },
         {

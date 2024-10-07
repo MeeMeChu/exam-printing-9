@@ -4,17 +4,18 @@ import { useParams } from 'react-router-dom'
 import Grid from '@mui/material/Grid2';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
-import { doc, getDoc, Timestamp, updateDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, Timestamp, updateDoc, where } from 'firebase/firestore';
 import { db } from '../../config/firebase-config';
 
 type Teachers = {
-    userID: number,
+    userID: string,
     userFname: string,
     userLname: string
 }
 
 type Subjects = {
     subID: string,
+    subTeacherID: ''
     subName: string,
     subFaculty: string,
     subMajor: string,
@@ -35,6 +36,7 @@ const EditSubjeactPage: FC = () => {
     const [formData, setFormData] = useState<Subjects>({
         subID: '',
         subName: '',
+        subTeacherID: '',
         subFaculty: '',
         subMajor: '',
         subSectionID: '',
@@ -60,7 +62,7 @@ const EditSubjeactPage: FC = () => {
     }
     
 
-    const handbleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         if (!id) {
@@ -98,6 +100,7 @@ const EditSubjeactPage: FC = () => {
                 const data = docSnap.data();
                 setFormData({
                     subID: data?.subID || '',
+                    subTeacherID: data?.subTeacherID || '',
                     subName: data?.subName || '',
                     subFaculty: data?.subFaculty || '',
                     subMajor: data?.subMajor || '',
@@ -113,7 +116,33 @@ const EditSubjeactPage: FC = () => {
                 });
             }
         }
-    
+        const fetchTeachers = async () => {
+            try {
+                // สร้าง query เพื่อกรองเฉพาะผู้ใช้ที่มี role เป็น TEACHER
+                const q = query(
+                collection(db, "users"),
+                where("userRole", "==", "TEACHER")
+                );
+            
+                // ดึงข้อมูลจาก Firestore
+                const querySnapshot = await getDocs(q);
+            
+                // เก็บข้อมูลที่ดึงมาในรูปแบบ array
+                const teachers = querySnapshot.docs.map((doc) => ({
+                    userID: doc.id,
+                    userFname: doc.data().userFname,
+                    userLname: doc.data().userLname
+                }));
+            
+                // แสดงผลข้อมูลที่ดึงมา
+                console.log(teachers);
+                setTeacher(teachers);
+            } catch (error) {
+                console.error("Error fetching teachers:", error);
+            }
+        };
+        
+        fetchTeachers();
         fetchData();
     }, []);
 
@@ -130,7 +159,7 @@ const EditSubjeactPage: FC = () => {
                     boxShadow: '0px 8px 24px rgba(149, 157, 165, 0.2)'
                 }}
             > 
-                <form onSubmit={handbleSubmit}>
+                <form onSubmit={handleSubmit}>
                     <Grid container spacing={3}>
                         {/* บรรทัดที่1 */}
                         <Grid size={{ xs: 12, md: 4}}>
@@ -157,14 +186,14 @@ const EditSubjeactPage: FC = () => {
                                 onChange={handleChange}
                             />
                         </Grid>
-                        {/* <Grid size={4}>
+                        <Grid size={4}>
                             <Typography variant="h5" sx={{fontSize:16, px:1}}>ชื่ออาจารย์</Typography>
                             <TextField
                                 fullWidth 
                                 size="small"
                                 select
-                                name="teacherID"
-                                value={formData?.teacherID}
+                                name="subTeacherID"
+                                value={formData?.subTeacherID}
                                 onChange={handleChange}
                             > 
                                 {teacher.map((item) => {
@@ -175,7 +204,7 @@ const EditSubjeactPage: FC = () => {
                                 );
                                 })}
                             </TextField>
-                        </Grid> */}
+                        </Grid>
                         {/* บรรทัดที่2 */}
                         <Grid size={6}>
                             <Typography variant="h5" sx={{fontSize:16, px:1}}>คณะ</Typography>

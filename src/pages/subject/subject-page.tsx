@@ -35,7 +35,7 @@ const SubjectPage : FC = () => {
 
     console.log(subjectData);
 
-    const handleDeleteAnnouncement = useCallback(async () => {
+    const handleDeleteSubject = useCallback(async () => {
         try {
             await deleteDoc(doc(db, "subjects", selectId));
             setRefresh(prev => !prev);
@@ -208,7 +208,7 @@ const SubjectPage : FC = () => {
                 <DialogDelete
                     open={openDialogRemove} 
                     setOpen={setOpenDialogRemove} 
-                    removeFunction={handleDeleteAnnouncement} 
+                    removeFunction={handleDeleteSubject} 
                 />
             </Box>
         </Container>

@@ -10,7 +10,7 @@ type ProtectedRouteType = {
 const ProtectedRoute : FC<ProtectedRouteType> = ({ children, requiredRole }) => {
     const auth = useAuth();
 
-    // if (auth?.currentUser?.userRole !== requiredRole) {
+    // if (auth?.userProfile?.userRole !== requiredRole) {
     //     return <Navigate to="/unauthorized" />;
     // }
 

@@ -6,12 +6,12 @@ import { getStorage } from 'firebase/storage';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyCu6YJZuJ5X4Rrl2qKHrp1x-rea0fHo8GE",
-    authDomain: "exam-printing.firebaseapp.com",
-    projectId: "exam-printing",
-    storageBucket: "exam-printing.appspot.com",
-    messagingSenderId: "937873437550",
-    appId: "1:937873437550:web:b1f12de487d1c41f05c77f"
+    apiKey: "AIzaSyCIiKVlZE8Upo09ETEVyQfHXyPAUqT6CTE",
+    authDomain: "exam-printing-38f04.firebaseapp.com",
+    projectId: "exam-printing-38f04",
+    storageBucket: "exam-printing-38f04.appspot.com",
+    messagingSenderId: "57270544752",
+    appId: "1:57270544752:web:b6cb5a431b4868ae5cc7b5"
 };
 
 // Initialize Firebase

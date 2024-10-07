@@ -1,12 +1,13 @@
-import { FC, useEffect, useState } from 'react'
+import { FC, useCallback, useEffect, useState } from 'react'
 import { Box, Button, Container, InputAdornment, Paper, styled, TextField, Tooltip, Typography } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { DataGrid, GridRowsProp, GridColDef, GridActionsCellItem } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useNavigate } from 'react-router-dom';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDocs } from 'firebase/firestore';
 import { db } from '../../config/firebase-config';
+import DialogDelete from '../../components/dialog-delete';
 
 type Users = {
     id?: string,
@@ -21,6 +22,9 @@ const AdminPage : FC = () => {
     const navigate = useNavigate();
     const [searchText, setSearchText] = useState<string>('');
     const [filteredData, setFilteredData] = useState<Users[]>([]);
+    const [selectId, setSelectId] = useState<string>('');
+    const [openDialogRemove, setOpenDialogRemove] = useState<boolean>(false);
+    const [refresh, setRefresh] = useState<boolean>(false);
     
     console.log(filteredData);
 
@@ -41,12 +45,16 @@ const AdminPage : FC = () => {
         setFilteredData(filtered);
     };
 
+    const handleDeleteUser = useCallback(async () => {
+        try {
+            await deleteDoc(doc(db, "users", selectId));
+            setRefresh(prev => !prev);
+        } catch (error) {
+            console.error("Error: ", error);
+        }
+    },[selectId]);
+
     const columns: GridColDef[] = [
-        { 
-            field: 'Username', 
-            headerName: 'Username', 
-            width: 150 
-        },
         {   field: 'userFname', 
             headerName: 'Firstname', 
             width: 150 
@@ -70,23 +78,23 @@ const AdminPage : FC = () => {
             width: 150,
             getActions: (params) => {
                 return [
-                <Tooltip key={1} title="แก้ไขข้อมูล">
-                    <GridActionsCellItem
-                        key={1}
-                        icon={<EditIcon color="primary"/>}
-                        label="Edit"
-                        className="textPrimary"
-                        color="inherit"
-                    />
-                </Tooltip>,
-                <Tooltip key={2} title="ลบข้อมูล">
-                    <GridActionsCellItem
-                        key={2}
-                        icon={<DeleteIcon color="primary"/>}
-                        label="Delete"
-                        color="inherit"
-                    />
-                </Tooltip>,
+                    <Tooltip key={1} title="แก้ไขข้อมูล">
+                        <GridActionsCellItem
+                            icon={<EditIcon color='primary'/>}
+                            label="Edit"
+                            onClick={() => navigate('edit/' + params?.row?.id)}
+                        />  
+                    </Tooltip>,
+                    <Tooltip key={2} title="ลบข้อมูล">
+                        <GridActionsCellItem
+                            icon={<DeleteIcon color='error'/>}
+                            label="Delete"
+                            onClick={() => {
+                                setSelectId(`${params?.row?.id}`);
+                                setOpenDialogRemove(true);
+                            }}
+                        />  
+                    </Tooltip>
                 ];
             },
         },
@@ -103,7 +111,7 @@ const AdminPage : FC = () => {
             setFilteredData(docsData);
         }
         fetchUser();
-    },[]);
+    },[refresh]);
 
     return (
         
@@ -136,6 +144,12 @@ const AdminPage : FC = () => {
                             onPaginationModelChange={setPaginationModel}
                         />
                     </Box>
+
+                    <DialogDelete
+                        open={openDialogRemove} 
+                        setOpen={setOpenDialogRemove} 
+                        removeFunction={handleDeleteUser} 
+                    />
                 </Paper>
             </Box>
         </Container>

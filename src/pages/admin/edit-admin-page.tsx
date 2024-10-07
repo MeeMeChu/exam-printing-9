@@ -1,30 +1,30 @@
-import { FC, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 import Grid from '@mui/material/Grid2';
-import { Box, Container, Tooltip, Typography,IconButton ,TextField,Button} from '@mui/material';
+import { Box, Container, Typography ,TextField, Button} from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { PasswordRounded } from '@mui/icons-material';
 import NavigateBack from '../../components/navigate-back';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { db } from '../../config/firebase-config';
 
 type UserFormType = {
     userFname: string,
     userLname: string,
-    userEmail: string,
-    password: string,
     userRole: string,
+    userEmail: string
 }
 
-const CreateAdminPage : FC= () => {
+const EditAdminPage : FC = () => {
 
+    const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const auth = useAuth();
     const [formData, setFormData]  = useState<UserFormType>({
         userFname: '',
         userLname: '',
+        userRole: '',
         userEmail: '',
-        password: '',
-        userRole: ''
     });
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,14 +37,48 @@ const CreateAdminPage : FC= () => {
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+
+        if (!id) {
+            console.error("ID is undefined");
+            return; // หยุดการทำงานถ้าไม่มี id
+        }
+
         try {
-            await auth?.signUpWithEmail(formData.userEmail, formData.password, formData.userFname, formData.userLname, formData.userRole);
+            const docRef = doc(db, "users", id);
+
+            await updateDoc(docRef, {
+                ...formData,
+            });
 
             navigate('/admin');
         } catch (error) {
-            console.error("Error : ", error);
+            console.error('Error:', error);
         }
     }
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if (!id) {
+                console.error("ID is undefined");
+                return; // หยุดการทำงานถ้าไม่มี id
+            }
+        
+            const docRef = doc(db, 'users', id);
+            const docSnap = await getDoc(docRef);
+        
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                setFormData({
+                    userEmail: data?.userEmail || '',
+                    userFname: data?.userFname || '',
+                    userRole: data?.userRole || '',
+                    userLname: data?.userLname || '',
+                });
+            }
+        }
+    
+        fetchData();
+    }, []);
 
     return (
         <Container sx={{ mt: 15 }}>
@@ -88,20 +122,8 @@ const CreateAdminPage : FC= () => {
                                 size="small" 
                                 type='email'
                                 name='userEmail'
+                                disabled
                                 value={formData?.userEmail}
-                                onChange={handleChange}
-                            />
-                        </Grid>
-                        <Grid size={12}>
-                            <Typography variant="h5" sx={{fontSize:16 , px:1}}>Password</Typography>
-                            <TextField 
-                                required 
-                                placeholder="Enter password" 
-                                fullWidth 
-                                size="small" 
-                                type='password'
-                                name="password"
-                                value={formData?.password}
                                 onChange={handleChange}
                             />
                         </Grid>
@@ -134,7 +156,7 @@ const CreateAdminPage : FC= () => {
                 </form>
             </Box>
         </Container>  
-    );
+    )
 }
 
-export default CreateAdminPage
+export default EditAdminPage

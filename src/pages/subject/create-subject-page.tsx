@@ -6,18 +6,18 @@ import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid2';
 import { useNavigate } from 'react-router-dom';
 import dayjs from "dayjs";
-import { addDoc, collection, Timestamp } from "firebase/firestore";
+import { addDoc, collection, getDocs, query, Timestamp, where } from "firebase/firestore";
 import { db } from "../../config/firebase-config";
 
 type Teachers = {
-  userID: number,
+  userID: string,
   userFname: string,
   userLname: string
 }
 
 type Subjects = {
   subID: string,
-  teacherID: number,
+  subTeacherID: string,
   subName: string,
   subFaculty: string,
   subMajor: string,
@@ -38,7 +38,7 @@ const CreateSubjectPage : FC = () => {
   const [teacher, setTeacher] = useState<Teachers[]>([]);
   const [formData, setFormData] = useState<Subjects>({
     subID: '',
-    teacherID: 0,
+    subTeacherID: '',
     subName: '',
     subFaculty: '',
     subMajor: '',
@@ -81,23 +81,35 @@ const CreateSubjectPage : FC = () => {
     }
   } 
 
-  // useEffect(() => {
-  //   const fetchTeachers = async () => {
-  //     try {
-  //       const response = await fetch('http://localhost:8000/api/users/teachers')
-  //       if (!response.ok) {
-  //         throw new Error('Failed to fetch subjects data')
-  //       }
-  //       const result = await response.json();
-  //       console.log(result);
-  //       setTeacher(result);
-  //     } catch (error) {
-  //       console.error("Error : ", error);
-  //     }
-  //   }
+  useEffect(() => {
+    const fetchTeachers = async () => {
+      try {
+        // สร้าง query เพื่อกรองเฉพาะผู้ใช้ที่มี role เป็น TEACHER
+        const q = query(
+          collection(db, "users"),
+          where("userRole", "==", "TEACHER")
+        );
+    
+        // ดึงข้อมูลจาก Firestore
+        const querySnapshot = await getDocs(q);
+    
+        // เก็บข้อมูลที่ดึงมาในรูปแบบ array
+        const teachers = querySnapshot.docs.map((doc) => ({
+          userID: doc.id,
+          userFname: doc.data().userFname,
+          userLname: doc.data().userLname
+        }));
+    
+        // แสดงผลข้อมูลที่ดึงมา
+        console.log(teachers);
+        setTeacher(teachers);
+      } catch (error) {
+        console.error("Error fetching teachers:", error);
+      }
+    };
 
-  //   fetchTeachers();
-  // },[]);
+    fetchTeachers();
+  }, []);
 
   return (
 
@@ -144,8 +156,8 @@ const CreateSubjectPage : FC = () => {
                     fullWidth 
                     size="small"
                     select
-                    name="teacherID"
-                    value={formData?.teacherID}
+                    name="subTeacherID"
+                    value={formData?.subTeacherID}
                     onChange={handleChange}
                   > 
                     {teacher.map((item) => {

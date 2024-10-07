@@ -3,15 +3,8 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, Us
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, db } from "../config/firebase-config";
 
-enum Role {
-    STAFF = "STAFF",
-    ADMIN = "ADMIN",
-    TEACHER = "TEACHER",
-    TECHNICAL = "TECHNICAL"
-}
-
 type UserProfile = {
-    userRole : Role
+    userRole : string
 }
 
 type AuthContextType = {
@@ -19,7 +12,7 @@ type AuthContextType = {
     userProfile : UserProfile | null,
     userLoggedIn : boolean,
     loading : boolean,
-    signUpWithEmail: (email: string, password: string, userFname: string, userLname: string) => void;
+    signUpWithEmail: (email: string, password: string, userFname: string, userLname: string, userRole: string) => void;
     signInWithEmail: (email: string, password: string) => void;
     logout: () => void;
 };  
@@ -37,6 +30,7 @@ export const AuthProvider : FC<{children: ReactNode}> = (props) => {
     const [ loading, setLoading ] = useState<boolean>(true);
 
     console.log("Login แล้วหรือยัง : ", userLoggedIn);
+    console.log("Profile", userProfile)
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -48,7 +42,7 @@ export const AuthProvider : FC<{children: ReactNode}> = (props) => {
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
                     setUserProfile({
-                        userRole: userData.role
+                        userRole: userData.userRole
                     });
                 }
 
@@ -63,18 +57,27 @@ export const AuthProvider : FC<{children: ReactNode}> = (props) => {
         return () => unsubscribe();
     }, []);
 
-    const signUpWithEmail = async (email: string, password: string, userFname: string, userLname: string) => {
+    const signUpWithEmail = async (email: string, password: string, userFname: string, userLname: string, userRole: string) => {
         try {
             const result = await createUserWithEmailAndPassword(auth, email, password);
             const user = result.user;
 
-            await setDoc(doc(db, 'users', user.uid), {
-                uid: user.uid,
-                email: user.email,
-                userFname: userFname,
-                userLname: userLname,
-                userRole: "STAFF",
-            });
+            const userDocRef = doc(db, "users", user.uid);
+            const userDoc = await getDoc(userDocRef);
+
+            if (!userDoc.exists()) {
+                // ถ้าไม่มี บันทึกผู้ใช้ใหม่ลง Firestore พร้อมกำหนด role "NORMAL"
+                await setDoc(userDocRef, {
+                    uid: user.uid,
+                    userEmail: user.email,
+                    userFname: userFname,
+                    userLname: userLname,
+                    userRole: userRole,
+                });
+                setUserProfile({
+                    userRole: userRole,
+                });
+            } 
 
 
         } catch (error) {
