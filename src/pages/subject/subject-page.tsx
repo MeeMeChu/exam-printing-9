@@ -9,21 +9,7 @@ import dayjs from "dayjs";
 import DialogDelete from "../../components/dialog-delete";
 import { collection, deleteDoc, doc, getDocs } from "firebase/firestore";
 import { db } from "../../config/firebase-config";
-
-
-type Subjects = {
-    id? : string,
-    subID: string,
-    subName: string,
-    subFaculty: string,
-    subMajor: string,
-    subSectionID: string,
-    subMiddate?: Date,
-    subFinaldate?: Date,
-    subTerm: string,
-    subStatus: string
-}
-
+import { Subjects } from "../../types/subjects";
 
 
 const SubjectPage : FC = () => {

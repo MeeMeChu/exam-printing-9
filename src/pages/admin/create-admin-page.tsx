@@ -47,7 +47,7 @@ const CreateAdminPage : FC= () => {
     }
 
     return (
-        <Container sx={{ mt: 15 }}>
+        <Container sx={{ mt: 10 }}>
             <NavigateBack path="/admin" title="กลับ"/>
             <Box sx={{p: 5,boxShadow: '0px 8px 24px rgba(149, 157, 165, 0.2)', mt : 2, mx: 10}}>
                 <form onSubmit={handleSubmit}>

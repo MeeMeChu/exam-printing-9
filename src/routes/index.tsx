@@ -8,7 +8,6 @@ import CreateBackupPage from '../pages/backup/create-backup-page';
 import BackupPage from '../pages/backup/backup-page';
 import ProfilePage from '../pages/profile-page';
 import ExamPage from '../pages/exam/exam-page';
-import CraeteExamPage from '../pages/exam/create-exam-page';
 import EditExamPage from '../pages/exam/edit-exam.page';
 import LoginPage from '../pages/login-page';
 import CreateAdminPage from '../pages/admin/create-admin-page';
@@ -17,6 +16,7 @@ import RoleRoutes from './role-routes';
 import ProtectedRoute from '../components/protected-route';
 import UnauthorizedPage from '../pages/unauthorized-page';
 import EditAdminPage from '../pages/admin/edit-admin-page';
+import FormPrintingPage from '../pages/printing/form-printing-page';
 
 const Routes : React.FC = () => {
     const element = useRoutes([
@@ -79,11 +79,7 @@ const Routes : React.FC = () => {
                     element: <ExamPage />
                 },
                 {
-                    path: 'create',
-                    element: <CraeteExamPage />
-                },
-                {
-                    path: 'edit/:id',
+                    path: 'upload/:id',
                     element: <EditExamPage/>
                 }
             ]
@@ -127,6 +123,10 @@ const Routes : React.FC = () => {
                 {
                     path: '',
                     element: <PrintingPage />
+                },
+                {
+                    path: 'form/:id',
+                    element: <FormPrintingPage />
                 },
             ]
         },

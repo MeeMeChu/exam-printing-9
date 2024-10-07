@@ -1,4 +1,4 @@
-import { FC,useCallback, useEffect, useState } from "react"
+import { FC, useCallback, useEffect, useState } from "react"
 import Container from '@mui/material/Container';
 import { Box,Typography , IconButton,Tooltip } from "@mui/material";
 import { DataGrid, GridColDef, GridValueGetter ,GridActionsCellItem} from '@mui/x-data-grid';
@@ -7,52 +7,49 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import Button from '@mui/material/Button';
 import { useNavigate } from 'react-router-dom';
 import dayjs from "dayjs";
-
-type Exams = {
-    examID : string,
-    subID:string,
-    examFileURL: string,
-    examDetail: string,
-    examRoom : string,
-    examStdCount: string,
-    examStartDate: string,
-    examEndDate : string,
-    examCreateAt : string,
-    examUpdateAt: string,
-    subName?: string,
-    subStatus?: string
-}
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { auth, db } from "../../config/firebase-config";
+import { useAuth } from "../../context/AuthContext";
+import { Subjects } from "../../types/subjects";
 
 const ExamPage : FC = () => {
     const navigate = useNavigate();
-    const [examData, setExamData] = useState<Exams[]>([]);
+    const auth = useAuth();
+    const [subjectsList, setSubjectsList] = useState<Subjects[]>([]);
     const [refresh, setRefresh] = useState<boolean>(false);
     
-    console.log(examData);
+    console.log(subjectsList);
 
     useEffect(() => {
-        const fetchExamsData = async () => {
+        const fetchSubjects = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/exams');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch exams data')
-                }
-                const result = await response.json();
+                // สร้าง query เพื่อกรองเฉพาะ subject ที่ teacherID ตรงกับ teacherID ที่ส่งมา
+                const q = query(
+                    collection(db, "subjects"),
+                    where("subTeacherID", "==", auth?.currentUser?.uid)
+                );
 
-                const exam = result.map((value: any) => ({
-                    ...value,
-                    subName: value.subjects.subName,
-                    subStatus: value.subjects.subStatus
-                }));
-    
-                setExamData(exam);
+                // ดึงข้อมูลจาก Firestore
+                const querySnapshot = await getDocs(q);
+
+                // เก็บข้อมูลที่ดึงมาในรูปแบบ array
+                const subjectsData = querySnapshot.docs.map((doc) => ({
+                    id: doc.id,
+                    ...doc.data(),
+                    subMiddate: (doc.data().subMiddate.toDate ? doc.data().subMiddate.toDate() : doc.data().subMiddate),
+                    subFinaldate: (doc.data().subFinaldate.toDate ? doc.data().subFinaldate.toDate() : doc.data().subFinaldate),
+                    createAt: (doc.data().createAt.toDate ? doc.data().createAt.toDate() : doc.data().createAt),
+                    updateAt: (doc.data().updateAt.toDate ? doc.data().updateAt.toDate() : doc.data().updateAt)
+                })) as Subjects[];
+
+                setSubjectsList(subjectsData);
             } catch (error) {
-                console.error("Error : ", error);
+            console.error("Error fetching subjects:", error);
             }
-        }
-    
-        fetchExamsData();
-    },[refresh]);
+        };
+
+        fetchSubjects();
+        }, [refresh]);
 
     const columns: GridColDef[] = [
         { 
@@ -71,19 +68,19 @@ const ExamPage : FC = () => {
             align: 'center'
         },
         {
-            field: 'examCreateAt',
+            field: 'createAt',
             headerName: 'วันที่เพิ่มข้อสอบ',
             width: 150,
             headerAlign: 'center',
             align: 'center',
             renderCell(param) {
                 return (
-                    <>{`${param?.row?.examCreateAt ? dayjs(param?.row?.examCreateAt).format('DD/MM/YYYY') : null}`}</>
+                    <>{`${param?.row?.createAt ? dayjs(param?.row?.createAt).format('DD/MM/YYYY') : null}`}</>
                 );
             }
         },
         {
-            field: 'examUpdateAt',
+            field: 'updateAt',
             headerName: 'วันที่แก้ไขข้อสอบ',
             width: 150,
             editable: true,
@@ -91,7 +88,7 @@ const ExamPage : FC = () => {
             align: 'center',
             renderCell(param) {
                 return (
-                    <>{`${param?.row?.examUpdateAt ? dayjs(param?.row?.examUpdateAt).format('DD/MM/YYYY') : null}`}</>
+                    <>{`${param?.row?.updateAt ? dayjs(param?.row?.updateAt).format('DD/MM/YYYY') : null}`}</>
                 );
             }
         },
@@ -138,13 +135,13 @@ const ExamPage : FC = () => {
                 }
                 return (
                     <>
-                    <Tooltip key={1} title="แก้ไขข้อมูล">
-                        <GridActionsCellItem
-                            icon={<EditIcon color='primary'/>}
-                            label="Edit"
-                            onClick={() => navigate('edit/' + params?.row?.examID)}
-                        />  
-                    </Tooltip>
+                        <Tooltip key={1} title="แก้ไขข้อมูล">
+                            <GridActionsCellItem
+                                icon={<EditIcon color='primary'/>}
+                                label="Edit"
+                                onClick={() => navigate('upload/' + params?.row?.id)}
+                            />  
+                        </Tooltip>
                     </>
                 );
             }
@@ -156,33 +153,25 @@ const ExamPage : FC = () => {
             
             <Box sx={{display: 'flex',justifyContent:'space-between'}}>                
                 <Typography variant="h5" fontWeight='bold'>Exam Management</Typography>
-                <Button
-                    variant="contained" 
-                    color="primary" 
-                    sx={{ fontSize: 16 }} 
-                    onClick={()=> navigate('create')}
-                >
-                    + เพิ่มไฟล์ข้อสอบ
-                </Button>
             </Box>
-                <Box sx={{p: 5, boxShadow: '0px 8px 24px rgba(149, 157, 165, 0.2)'}}>
-                    <Box sx={{ height: 500, width : '100%', mt:2}}>
-                        <DataGrid
-                            sx={{boxShadow: 2}}
-                            rows={examData.map((item) => ({ id: item.examID, ...item })) || []}
-                            columns={columns}
-                            initialState={{
-                                pagination: {
-                                    paginationModel: {
-                                        pageSize: 5,
-                                    },
+            <Box sx={{p: 5, boxShadow: '0px 8px 24px rgba(149, 157, 165, 0.2)', mt: 2}}>
+                <Box sx={{ height: 500, width : '100%', mt:2}}>
+                    <DataGrid
+                        sx={{boxShadow: 2}}
+                        rows={subjectsList.map((item) => ({ id: item.id, ...item })) || []}
+                        columns={columns}
+                        initialState={{
+                            pagination: {
+                                paginationModel: {
+                                    pageSize: 5,
                                 },
-                            }}
-                            
-                            pageSizeOptions={[5]}
-                        />
-                    </Box>
+                            },
+                        }}
+                        
+                        pageSizeOptions={[5]}
+                    />
                 </Box>
+            </Box>
             
         </Container>
     );

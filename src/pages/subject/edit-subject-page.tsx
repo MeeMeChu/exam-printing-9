@@ -108,7 +108,7 @@ const EditSubjeactPage: FC = () => {
                     subTerm: data?.subTerm || '',
                     subMiddate: new Date(data?.subMiddate?.seconds * 1000) ||  new Date(''),
                     subFinaldate: new Date(data?.subFinaldate?.seconds * 1000) || new Date(''),
-                    subStatus: data?.subStatus || '',
+                    subStatus: data?.subStatus || 'ยังไม่ส่งข้อสอบ',
                     examStdCount: data?.examStdCount || 0,
                     examStartDate: data?.examStartDate || '',
                     examEndDate: data?.examEndDate || '',
@@ -197,11 +197,11 @@ const EditSubjeactPage: FC = () => {
                                 onChange={handleChange}
                             > 
                                 {teacher.map((item) => {
-                                return (
-                                    <MenuItem key={item.userID} value={item.userID}>
-                                        {item.userFname} {item.userLname}
-                                    </MenuItem>
-                                );
+                                    return (
+                                        <MenuItem key={item.userID} value={item.userID}>
+                                            {item.userFname} {item.userLname}
+                                        </MenuItem>
+                                    );
                                 })}
                             </TextField>
                         </Grid>
@@ -231,7 +231,7 @@ const EditSubjeactPage: FC = () => {
                             />
                         </Grid>
                         {/* บรรทัดที่3 */}
-                        <Grid size={2}>
+                        <Grid size={1}>
                             <Typography variant="h5" sx={{fontSize:16, px:1}}>ตอน</Typography>
                             <TextField 
                             required
@@ -243,7 +243,7 @@ const EditSubjeactPage: FC = () => {
                             onChange={handleChange}
                             />
                         </Grid>
-                        <Grid size={2}>
+                        <Grid size={1}>
                             <Typography variant="h5" sx={{fontSize:16, px:1}}>เทอม</Typography>
                             <TextField 
                             
@@ -259,6 +259,21 @@ const EditSubjeactPage: FC = () => {
                                 <MenuItem value='1'>1</MenuItem>
                                 <MenuItem value='2'>2</MenuItem>
                                 <MenuItem value='3'>3</MenuItem>
+                            </TextField>
+                        </Grid>
+                        <Grid size={2}>
+                            <Typography variant="h5" sx={{fontSize:16, px:1}}>สถานะข้อสอบ</Typography>
+                            <TextField 
+                                select
+                                defaultValue='ยังไม่ส่งข้อสอบ'
+                                fullWidth
+                                size="small"
+                                name="subStatus"
+                                value={formData?.subStatus}
+                                onChange={handleChange}
+                            >
+                                <MenuItem value='ยังไม่ส่งข้อสอบ'>ยังไม่ส่งข้อสอบ</MenuItem>
+                                <MenuItem value='รอแก้ไข'>รอแก้ไข</MenuItem>
                             </TextField>
                         </Grid>
                         <Grid size={4}>

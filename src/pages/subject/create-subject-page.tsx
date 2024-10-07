@@ -8,28 +8,12 @@ import { useNavigate } from 'react-router-dom';
 import dayjs from "dayjs";
 import { addDoc, collection, getDocs, query, Timestamp, where } from "firebase/firestore";
 import { db } from "../../config/firebase-config";
+import { Subjects } from "../../types/subjects";
 
 type Teachers = {
   userID: string,
   userFname: string,
   userLname: string
-}
-
-type Subjects = {
-  subID: string,
-  subTeacherID: string,
-  subName: string,
-  subFaculty: string,
-  subMajor: string,
-  subSectionID: string,
-  subMiddate?: Date,
-  subFinaldate?: Date,
-  subTerm: string,
-  subStatus: string
-  examStdCount: number,
-  examStartDate: string,
-  examEndDate : string,
-  examRoom: string,
 }
 
 const CreateSubjectPage : FC = () => {
@@ -74,7 +58,7 @@ const CreateSubjectPage : FC = () => {
       }); 
 
       if (response != null) {
-        navigate('/');
+        navigate('/subject');
       }
     } catch (error) {
       console.error('Error:', error);

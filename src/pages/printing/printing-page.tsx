@@ -1,104 +1,55 @@
-import { FC ,useCallback, useEffect, useState } from "react"
-import { Box, Container, Tooltip, Typography,IconButton ,TextField} from '@mui/material';
-import { DataGrid, GridRowsProp, GridColDef, GridActionsCellItem } from '@mui/x-data-grid';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import { FC , useEffect, useState } from "react"
+import { Box, Container, Typography,TextField, IconButton} from '@mui/material';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import Button from '@mui/material/Button';
 import { useNavigate } from 'react-router-dom';
 import Grid from '@mui/material/Grid2';
-
-type Exams = {
-    examID : string,
-    subID:string,
-    examFileURL: string,
-    examDetail: string,
-    examRoom : string,
-    examStdCount: string,
-    examStartDate: string,
-    examEndDate : string,
-    examCreateAt : string,
-    examUpdateAt: string,
-    subName?: string,
-    subStatus?: string
-}
-
-
+import { Subjects } from "../../types/subjects";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../config/firebase-config";
+import PrintIcon from '@mui/icons-material/Print';
 
 const PrintingPage :FC = () => {
     const navigate = useNavigate();
-    const [examData, setExamData] = useState<Exams[]>([]);
-    const [refresh, setRefresh] = useState<boolean>(false);
-    const [searchTerm, setSearchTerm] = useState(''); // state สำหรับเก็บคำค้นหา
-    const [searchResults, setSearchResults] = useState<Exams[]>([]);
+    const [searchText, setSearchText] = useState<string>('');
+    const [subjectList, setSubjectsList] = useState<Subjects[]>([]);
+    const [allSubjects, setAllSubjects] = useState<Subjects[]>([]);
 
-    const handleSearch = async (term: string) => {
-        try {
-            const response = await fetch(`http://localhost:8000/api/exams?search=${term}`); // ปรับ endpoint ให้ตรงกับ API
-            if (!response.ok) {
-                throw new Error('Failed to fetch search results');
-            }
-            const results = await response.json();
-            const exams = results.map((value: any) => ({
-                ...value,
-                subName: value.subjects?.subName || '', // ดึงข้อมูลที่ต้องการจาก API
-                subStatus: value.subjects?.subStatus || '',
-            }));
-            setExamData(exams); // อัปเดตข้อมูลการค้นหา
-        } catch (error) {
-            console.error('Error:', error);
+    const [selectTerm, setSelectTerm] = useState('Midterm');
+
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const searchTerm = e.target.value;
+        setSearchText(searchTerm);
+        
+        if (searchTerm === '') {
+            setSubjectsList(allSubjects);
+            return;
         }
+
+        const filtered = subjectList.filter((row) =>
+            row.subID.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            row.subName.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    
+        setSubjectsList(filtered);
     };
 
-    // ทำการค้นหาทันทีเมื่อ searchTerm เปลี่ยนแปลง
     useEffect(() => {
-        if (searchTerm) {
-            handleSearch(searchTerm);
-        } else {
-            // ถ้าไม่มี searchTerm ให้ดึงข้อมูลทั้งหมดกลับมาแสดง
-            const fetchExamsData = async () => {
-                try {
-                    const response = await fetch('http://localhost:8000/api/exams');
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch exams data');
-                    }
-                    const result = await response.json();
-                    const exams = result.map((value: any) => ({
-                        ...value,
-                        subName: value.subjects?.subName || '',
-                        subStatus: value.subjects?.subStatus || '',
-                    }));
-                    setExamData(exams);
-                } catch (error) {
-                    console.error("Error : ", error);
-                }
-            };
-            fetchExamsData();
-        }
-    }, [searchTerm]);
-    console.log(examData);
-    useEffect(() => {
-        const fetchExamsData = async () => {
-            try {
-                const response = await fetch('http://localhost:8000/api/exams');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch exams data')
-                }
-                const result = await response.json();
+        const fetchData = async () => {
+            const querySnapshot = await getDocs(collection(db, 'subjects'));
+            const docsData = querySnapshot.docs.map(doc => ({ 
+                id: doc.id,
+                ...doc.data(),
+                subMiddate: (doc.data().subMiddate.toDate ? doc.data().subMiddate.toDate() : doc.data().subMiddate),
+                subFinaldate: (doc.data().subFinaldate.toDate ? doc.data().subFinaldate.toDate() : doc.data().subFinaldate) 
+            })) as Subjects[];
+            setSubjectsList(docsData);
+            setAllSubjects(docsData);
+        };
 
-                const exam = result.map((value: any) => ({
-                    ...value,
-                    subName: value.subjects.subName,
-                    subStatus: value.subjects.subStatus
-                }));
-    
-                setExamData(exam);
-            } catch (error) {
-                console.error("Error : ", error);
-            }
-        }
-    
-        fetchExamsData();
-    },[refresh]);
+        fetchData();
+    }, [])
+
     const columns: GridColDef[] = [
         { 
             field: 'subID', 
@@ -107,29 +58,7 @@ const PrintingPage :FC = () => {
         },
         {   field: 'subName', 
             headerName: 'ชื่อวิชา', 
-            width: 350 
-        },
-        {
-            field: 'col3',
-            headerName: 'Action',
-            sortable: false,
-            type:'actions',
-            width: 150,
-            headerAlign: 'center',
-            align: 'center',
-            renderCell: (params) => {
-                return (
-                    <>
-                        <Button
-                            color="primary"
-                            onClick={() => { alert(`Print ${params.row.col2}`); }}
-                            disabled={params.row.subStatus === 'ยังไม่ส่งข้อสอบ' || params.row.subStatus === 'จัดพิมพ์เสร็จสิ้น' || params.row.subStatus === 'รอแก้ไข'}
-                        >
-                        Print
-                        </Button>
-                    </>
-                );
-            }
+            width: 300 
         },
         {
             field: 'subStatus',
@@ -159,8 +88,53 @@ const PrintingPage :FC = () => {
                     </Typography>
                 );
             }
+        },
+        {
+            field: 'Action',
+            headerName: 'Action',
+            sortable: false,
+            type:'actions',
+            width: 150,
+            headerAlign: 'center',
+            align: 'center',
+            renderCell: (params) => {
+                return (
+                    <>
+                        { selectTerm === 'Midterm' ? (
+                            <Button
+                                color="primary"
+                                disabled={params.row.subStatus === 'ยังไม่ส่งข้อสอบ' || params.row.subStatus === 'จัดพิมพ์เสร็จสิ้น' || params.row.subStatus === 'รอแก้ไข'}
+                            >
+                                <a href={params?.row?.examFileMidURL} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none'}}>Print Midterm</a>
+                            </Button>
+                        ) : (
+                            <Button
+                                color="primary"
+                                disabled={params.row.subStatus === 'ยังไม่ส่งข้อสอบ' || params.row.subStatus === 'จัดพิมพ์เสร็จสิ้น' || params.row.subStatus === 'รอแก้ไข'}
+                            >
+                                <a href={params?.row?.examFileFinalURL} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none'}}>Print Final</a>
+                            </Button>
+                        )}
+                    </>
+                );
+            }
+        },
+        {
+            field: 'print',
+            headerName: 'จ่าหน้าซอง',
+            headerAlign: 'center',
+            align: 'center',
+            renderCell: (params) => {
+                return (
+                    <IconButton
+                        onClick={() => navigate(`form/${params?.row?.id}`)}
+                        disabled={params.row.subStatus === 'ยังไม่ส่งข้อสอบ' || params.row.subStatus === 'จัดพิมพ์เสร็จสิ้น' || params.row.subStatus === 'รอแก้ไข'}
+                    >
+                        <PrintIcon color="primary"/>
+                    </IconButton>
+                )
+            }
         }
-        
     ];
     return (
 
@@ -178,34 +152,42 @@ const PrintingPage :FC = () => {
                     boxShadow: '0px 8px 24px rgba(149, 157, 165, 0.2)'
                 }}
             >
-                <Box sx={{ height: 600, width : '100%',mt:2}}>
-                
-            {/* ปุ่มกดนะจ้ะ */}
-            <Grid container spacing={1} sx={{display: 'flex', flexDirection:'row',my:2.5}}>
-                {/* ค้นหา */}
-                <Grid size={5}>
-                <TextField 
-                    label="Search Exam" 
-                    variant="outlined" 
-                    fullWidth 
-                    size="small" 
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    />                
-                </Grid>
-                <Grid size={3}>
+                <Grid container spacing={1} sx={{display: 'flex', flexDirection:'row',my:2.5}}>
+                    {/* ค้นหา */}
+                    <Grid size={5}>
+                        <TextField 
+                            label="Search Exam" 
+                            variant="outlined" 
+                            fullWidth 
+                            size="small" 
+                            value={searchText}
+                            onChange={handleSearch}
+                        />                
+                    </Grid>
+                    <Grid size={3}>
 
+                    </Grid>
+                    <Grid size={2}>
+                        <Button
+                            variant={selectTerm === "Midterm" ? "contained" : "outlined"}
+                            onClick={() => setSelectTerm("Midterm")}
+                            fullWidth
+                        >
+                            Midterm
+                        </Button>
+                    </Grid>
+                    <Grid size={2}>
+                        <Button
+                            variant={selectTerm === "Final" ? "contained" : "outlined"}
+                            onClick={() => setSelectTerm("Final")}
+                            fullWidth
+                        >
+                            Final
+                        </Button>
+                    </Grid>
                 </Grid>
-                {/* ปุ่มกด1 */}
-                <Grid size={2}>
-                    <Button variant="contained" fullWidth >Midterm</Button>
-                </Grid>
-                {/* ปุ่มกด2 */}
-                <Grid size={2}>
-                    <Button variant="contained" fullWidth sx={{backgroundColor:'#000099'}}>Finalterm</Button>
-                </Grid>
-            </Grid>
-                    <DataGrid rows={examData.map((item) => ({ id: item.examID, ...item })) || []} columns={columns} />
+                <Box sx={{ height: 500, width : '100%',mt:2}}>
+                    <DataGrid rows={subjectList.map((item) => ({ id: item.id, ...item })) || []} columns={columns} />
                 </Box>
             </Box>
         </Container>
